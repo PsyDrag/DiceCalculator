@@ -1,0 +1,12 @@
+﻿@page "/examples"
+
+<h1>Examples</h1>
+
+<div style="white-space: pre-wrap; font-family: monospace">@drexamples</div>
+<br />
+<div style="white-space: pre-wrap; font-family: monospace">@mmexamples</div>
+
+@code {
+    private readonly string drexamples = Constants.DiceRollExamples;
+    private readonly string mmexamples = Constants.MinMaxExamples;
+}
