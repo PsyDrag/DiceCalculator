@@ -2,13 +2,31 @@
 
 <h1>Dice Calculator</h1>
 
+<br />
+<br />
+
 <EditForm Model="@exampleModel">
-    <InputText @bind-Value="diceRoll" />
+    <label for="drInput">Dice Roll</label>
+    <br />
+    <InputText name="drInput" id="drInput" @bind-Value="diceRollInput" />
+    <button class="btn btn-primary" @onclick="CalculateDiceRoll">Calculate</button>
 </EditForm>
-<button class="btn btn-primary" @onclick="DoThingy">Parse input</button>
-<p>@currentCount</p>
-<p>@diceRoll</p>
-<p>@minMax</p>
+<br />
+<p>@diceRollOutput</p>
+
+<br />
+<br />
+<br />
+<br />
+
+<EditForm Model="@exampleModel">
+    <label for="mmInput">Min Max</label>
+    <br />
+    <InputText name="mmInput" id="mmInput" @bind-Value="minMaxInput" />
+    <button class="btn btn-primary" @onclick="CalculateMinMax">Calculate</button>
+</EditForm>
+<br />
+<p>@minMaxOutput</p>
 
 @code {
     private ExampleModel exampleModel = new ExampleModel();
