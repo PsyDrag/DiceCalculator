@@ -1,0 +1,17 @@
+﻿@page "/"
+
+<h1>Dice Calculator</h1>
+
+<EditForm Model="@exampleModel">
+    <InputText @bind-Value="diceRoll" />
+</EditForm>
+<button class="btn btn-primary" @onclick="DoThingy">Parse input</button>
+<p>@currentCount</p>
+<p>@diceRoll</p>
+<p>@minMax</p>
+
+@code {
+    private ExampleModel exampleModel = new ExampleModel();
+
+    public class ExampleModel { }
+}
