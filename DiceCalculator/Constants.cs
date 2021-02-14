@@ -19,8 +19,8 @@
         public static readonly string MinMaxExamples =
             "Min-Max Examples:\n" +
             "  min:10 max:48        2d20 + 8 is a possible result\n" +
-            "  min:6 max:17         d12 + 5 is a possible result\n" +
-            "  min:2 max:17         d16 + 1 is a possible result";
+            "  min:6  max:17        d12 + 5 is a possible result\n" +
+            "  min:2  max:17        d16 + 1 is a possible result";
         //  min:6 avg:11.5 max:17  d6 + 2d4 + 3 as a possible result
         //  min:6 avg:15 max:17    d12 + 5 (min and max are prioritized over avg)
 
