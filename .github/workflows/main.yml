@@ -32,8 +32,8 @@ jobs:
         run: dotnet publish WasmDiceCalculator.csproj -c Release -o release --nologo
 
       # changes the base-tag in index.html from '/' to 'WasmDiceCalculator' to match GitHub Pages repository subdirectory
-      - name: Change base-tag in index.html from / to WasmDiceCalculator
-        run: sed -i 's/<base href="\/" \/>/<base href="\/WasmDiceCalculator\/" \/>/g' release/wwwroot/index.html
+      #- name: Change base-tag in index.html from / to WasmDiceCalculator
+      #  run: sed -i 's/<base href="\/" \/>/<base href="\/WasmDiceCalculator\/" \/>/g' release/wwwroot/index.html
       
       - name: Commit wwwroot to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@4.0.0
