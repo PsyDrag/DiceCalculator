@@ -13,7 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\DiceCalculator\DiceCalculator.csproj" />
+    <ProjectReference Include="..\..\DiceCalculator\DiceCalculator.csproj">
+      <Private>true</Private>
+    </ProjectReference>
   </ItemGroup>
 
 </Project>
