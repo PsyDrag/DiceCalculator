@@ -12,8 +12,12 @@
     <PackageReference Include="System.Net.Http.Json" Version="3.2.0" />
   </ItemGroup>
 
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-	  <Exec Command="if $(ConfigurationName) == Debug Copy &quot;$(ProjectDir)..\..\DiceCalculator\*.cs&quot; &quot;$(ProjectDir)DiceCalculator\&quot;" />
+  <ItemGroup>
+    <Folder Include="DiceCalculator\" />
+  </ItemGroup>
+
+  <Target Condition="!Exists('DiceCalculator')" Name="PreBuild" BeforeTargets="PreBuildEvent">
+	  <Exec Command="Copy &quot;$(ProjectDir)..\..\DiceCalculator\*.cs&quot; &quot;$(ProjectDir)DiceCalculator\&quot;" />
   </Target>
 
 </Project>
