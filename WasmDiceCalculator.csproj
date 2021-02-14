@@ -13,9 +13,20 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\DiceCalculator\DiceCalculator.csproj">
-      <Private>true</Private>
-    </ProjectReference>
+    <Reference Include="DiceCalculator">
+      <HintPath>DiceCalculator.dll</HintPath>
+    </Reference>
   </ItemGroup>
+
+  <!--<ItemGroup>
+    <ProjectReference Include="..\..\DiceCalculator\DiceCalculator.csproj">
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>-->
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <!--<Exec Command="Copy &quot;$(SolutionDir)..\DiceCalculator\*.cs&quot; &quot;$(ProjectDir)DiceCalculator\&quot;" />-->
+    <Exec Command="Copy &quot;$(ProjectDir)..\..\DiceCalculator\bin\$(ConfigurationName)\netstandard2.1\DiceCalculator.dll&quot; &quot;$(ProjectDir)&quot;" />
+  </Target>
 
 </Project>
