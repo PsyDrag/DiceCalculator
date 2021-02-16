@@ -8,7 +8,7 @@ namespace DiceCalculator
         {
             line = line.ToLower();
 
-            if (line.Contains("kl") || line.Contains("ac") || line.Contains("dc"))
+            if (line.Contains("ac") || line.Contains("dc"))
             {
                 Printer.PrintError("Something in your input is not yet implemented");
                 return new DiceRoll(null, null);
@@ -17,6 +17,7 @@ namespace DiceCalculator
             {
                 var dice = new List<Die>();
                 var modifiers = new List<Modifier>();
+                bool shouldLookBack = false;
                 var components = line.Split(' ');
                 for (var i = 0; i < components.Length; i++)
                 {
@@ -24,22 +25,46 @@ namespace DiceCalculator
                     {
                         var die = components[i].Split('d');
                         int amt, keep = 0;
-                        if (die[0].Contains("kh"))
+                        bool keepHigh = false;
+                        string diceOp;
+
+                        if (die[0].Contains('k'))
                         {
-                            var asdf = die[0].Split("kh");
-                            amt = int.Parse(asdf[0]);
-                            keep = int.Parse(asdf[1]);
+                            var keepNums = die[0].Split('k');
+                            amt = int.Parse(keepNums[0]);
+
+                            var keepAmt = int.Parse(keepNums[1][1..]);
+                            keep = keepAmt > amt ? amt : keepAmt;
+                            keepHigh = keepNums[1][0] == 'h';
                         }
                         else
                         {
                             amt = die[0] == string.Empty ? 1 : int.Parse(die[0]);
                         }
                         var type = int.Parse(die[1]);
-                        dice.Add(new Die(amt, keep, type));
+
+                        if (shouldLookBack)
+                        {
+                            var lookBackOp = components[i - 1];
+                            diceOp = lookBackOp switch
+                            {
+                                "+" => Operation.Add.Value,
+                                "-" => Operation.Subtract.Value,
+                                "*" => Operation.Multiply.Value,
+                                "/" => Operation.Divide.Value,
+                                _   => Operation.Add.Value
+                            };
+                        }
+                        else
+                        {
+                            diceOp = Operation.Add.Value;
+                        }
+                        dice.Add(new Die(amt, keepHigh, keep, type, diceOp));
+                        shouldLookBack = false;
                     }
-                    else if (components[i] == "+" && components[i+1].Contains('d'))
+                    else if ((components[i] == "+" || components[i] == "-") && components[i+1].Contains('d'))
                     {
-                        // this assumes all dice rolls are added together
+                        shouldLookBack = true;
                     }
                     else if (components[i] == "+" || components[i] == "-" || components[i] == "*" || components[i] == "/")
                     {

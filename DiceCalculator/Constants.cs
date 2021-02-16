@@ -12,9 +12,9 @@
             "  d6 - 3 * 2           multiple modifiers (calculations are made from left to right)\n" +
             "  4kh3d6               standard ability roll\n" +
             "  2kl1d20              with disadvantage\n" +
-            "  6kl5d4 + 3kh2d6 + 2  why would you want to do this fancy shit?\n" +
-            "  d20 + 6 ac 18        attack roll against AC 18\n" +
-            "  d20 + 4 dc 15        check against DC 15";
+            "  6kl5d4 + 3kh2d6 + 2  you can do this..but why?";
+            //"  d20 + 6 ac 18        attack roll against AC 18\n" +
+            //"  d20 + 4 dc 15        check against DC 15";
 
         public static readonly string MinMaxExamples =
             "Min-Max Examples:\n" +
@@ -39,12 +39,12 @@
             "  d                                 Do I really need to explain this one?\n" +
             "  kh                                Keep highest x number of dice rolls (e.g. 4kh3)\n" +
             "  kl                                Keep lowest x number of dice rolls (e.g. 2kl1)\n" +
-            "  ac                                Show pass/fail % against an AC\n" +
-            "  dc                                Show pass/fail % against a DC\n" +
+            //"  ac                                Show pass/fail % against an AC\n" +
+            //"  dc                                Show pass/fail % against a DC\n" +
             "\n" +
             "Min-Max Components:\n" +
             "  min                               Minimum value\n" +
-            "  avg                               Average value\n" +
+            //"  avg                               Average value\n" +
             "  max                               Maximum value";
     }
 }

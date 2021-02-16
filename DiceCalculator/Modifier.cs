@@ -3,10 +3,7 @@
     public class Modifier
     {
         public Modifier(string operation, int number)
-        {
-            Operation = operation;
-            Number = number;
-        }
+            => (Operation, Number) = (operation, number);
 
         public string Operation { get; set; }
         public int Number { get; set; }

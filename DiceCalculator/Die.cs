@@ -2,21 +2,16 @@
 {
     public class Die
     {
-        public Die(int diceAmount, int diceType)
-        {
-            TotalDiceAmount = diceAmount;
-            DiceType = diceType;
-        }
+        public Die(int diceAmount, int diceType, string operation)
+            => (TotalDiceAmount, DiceType, Operation) = (diceAmount, diceType, operation);
 
-        public Die(int total, int keep, int diceType)
-        {
-            TotalDiceAmount = total;
-            KeepAmount = keep;
-            DiceType = diceType;
-        }
+        public Die(int total, bool keepHigh, int keep, int diceType, string operation)
+            => (TotalDiceAmount, KeepHigh, KeepAmount, DiceType, Operation) = (total, keepHigh, keep, diceType, operation);
 
         public int TotalDiceAmount { get; set; }
+        public bool KeepHigh { get; set; }
         public int KeepAmount { get; set; }
         public int DiceType { get; set; }
+        public string Operation { get; set; }
     }
 }
