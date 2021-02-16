@@ -4,23 +4,23 @@
     {
         public static readonly string DiceRollExamples =
             "Dice Roll Examples:\n" +
-            "  1d4 + 7              standard roll plus modifier\n" +
-            "  3d6                  no modifier\n" +
-            "  d20                  straight up\n" +
-            "  d6 * 2               multiply\n" +
-            "  d20 + 3d6 + 5        multiple dice rolls\n" +
-            "  d6 - 3 * 2           multiple modifiers (calculations are made from left to right)\n" +
-            "  4kh3d6               standard ability roll\n" +
-            "  2kl1d20              with disadvantage\n" +
-            "  6kl5d4 + 3kh2d6 + 2  you can do this..but why?";
-            //"  d20 + 6 ac 18        attack roll against AC 18\n" +
-            //"  d20 + 4 dc 15        check against DC 15";
+            "  1d4 + 7                standard roll plus modifier\n" +
+            "  3d6                    no modifier\n" +
+            "  d20                    straight up\n" +
+            "  d6 * 2                 multiply\n" +
+            "  d20 + 3d6 + 5          multiple dice rolls\n" +
+            "  d6 - 3 * 2             multiple modifiers (calculations are made from left to right)\n" +
+            "  4kh3d6                 standard ability roll\n" +
+            "  2kl1d20                with disadvantage\n" +
+            "  6kl5d4 + 3kh2d6 + 2    you can do this..but why?";
+            //"  d20 + 6 ac 18          attack roll against AC 18\n" +
+            //"  d20 + 4 dc 15          check against DC 15";
 
         public static readonly string MinMaxExamples =
             "Min-Max Examples:\n" +
             "  min:10 max:48        2d20 + 8 is a possible result\n" +
-            "  min:6  max:17        d12 + 5 is a possible result\n" +
-            "  min:2  max:17        d16 + 1 is a possible result";
+            "  min:6  max:17        1d12 + 5 is a possible result\n" +
+            "  min:2  max:17        1d16 + 1 is a possible result";
         //  min:6 avg:11.5 max:17  d6 + 2d4 + 3 as a possible result
         //  min:6 avg:15 max:17    d12 + 5 (min and max are prioritized over avg)
 
