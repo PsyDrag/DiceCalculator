@@ -1,32 +1,68 @@
 ﻿@page "/"
 
-<h1>Dice Calculator</h1>
-
-<br />
-<br />
-
-<EditForm Model="@exampleModel">
-    <label for="drInput">Dice Roll</label>
-    <br />
-    <InputText name="drInput" id="drInput" @bind-Value="diceRollInput" />
-    <button class="btn btn-primary" @onclick="CalculateDiceRoll">Calculate</button>
-</EditForm>
-<br />
-<p>@diceRollOutput</p>
+<div style="text-align:center">
+    <h1>Dice Calculator</h1>
+</div>
 
 <br />
 <br />
 <br />
 <br />
 
-<EditForm Model="@exampleModel">
-    <label for="mmInput">Min Max</label>
-    <br />
-    <InputText name="mmInput" id="mmInput" @bind-Value="minMaxInput" />
-    <button class="btn btn-primary" @onclick="CalculateMinMax">Calculate</button>
-</EditForm>
-<br />
-<p>@minMaxOutput</p>
+<div class="container" style="margin:0; max-width:100%">
+    <EditForm Model="@exampleModel">
+        <div class="row">
+            <div class="col"></div>
+            <div class="col-auto">
+                <div>
+                    <div class="row">
+                        <h5 class="col" style="text-align: center;">Dice Roll</h5>
+                    </div>
+                    <div class="row">
+                        <InputText class="col-12 col-md-auto" @bind-Value="diceRollInput" />
+                        <button class="btn btn-primary col-12 col-md-auto" @onclick="CalculateDiceRoll">Calculate</button>
+                    </div>
+                    <div class="row" style="margin-top:10px; justify-content: space-evenly">
+                        @if (diceRollOutput != null)
+                        {
+                            <p>Min: @diceRollOutput.Min</p>
+                            <p>Avg: @diceRollOutput.Avg</p>
+                            <p>Max: @diceRollOutput.Max</p>
+                        }
+                    </div>
+                </div>
+                <div style="margin-top:100px">
+                    <div class="row">
+                        <h5 class="col" style="text-align: center;">Min Max</h5>
+                    </div>
+                    <div class="row">
+                        <InputText class="col-12 col-md-auto" @bind-Value="minMaxInput" />
+                        <button class="btn btn-primary col-12 col-md-auto" @onclick="CalculateMinMax">Calculate</button>
+                    </div>
+                    <div class="row" style="margin-top:10px; justify-content: center">
+                        @if (minMaxOutput != null)
+                        {
+                            @foreach (var die in minMaxOutput.Dice)
+                            {
+                                <p>@die.TotalDiceAmount</p>
+                                <p>d</p>
+                                <p>@die.DiceType</p>
+                            }
+                            @foreach (var mod in minMaxOutput.Modifiers)
+                            {
+                                @if (mod.Number != 0)
+                                {
+                                    <p> @mod.Operation @mod.Number</p>
+                                }
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="col"></div>
+        </div>
+    </EditForm>
+</div>
 
 @code {
     private ExampleModel exampleModel = new ExampleModel();

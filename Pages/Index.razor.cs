@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using DiceCalculator;
 
 namespace WasmDiceCalculator.Pages
@@ -6,30 +7,20 @@ namespace WasmDiceCalculator.Pages
     public partial class Index
     {
         private string diceRollInput = "3d6";
-        private string diceRollOutput = "";
-        private string minMaxInput = "Min:1 Max:20";
-        private string minMaxOutput = "";
+        private string minMaxInput = "min:1 max:20";
+        private MinMax diceRollOutput = null;
+        private DiceRoll minMaxOutput = null;
 
         private void CalculateDiceRoll()
         {
             var dr = Parser.ParseDiceRoll(diceRollInput);
-            var mm = Calculator.CalculateDiceRoll(dr);
-            diceRollOutput = $"Output:\nMin:{mm.Min} Avg:{mm.Avg} Max:{mm.Max}";
+            diceRollOutput = Calculator.CalculateDiceRoll(dr);
         }
 
         private void CalculateMinMax()
         {
             var mm = Parser.ParseMinMax(minMaxInput);
-            var dr = Calculator.CalculateMinMax(mm);
-
-            var die = dr.Dice.First();
-            minMaxOutput = $"Output:\n{die.TotalDiceAmount}d{die.DiceType}";
-
-            var mod = dr.Modifiers.First();
-            if (mod.Number != 0)
-            {
-                minMaxOutput += $" {mod.Operation} {mod.Number}";
-            }
+            minMaxOutput = Calculator.CalculateMinMax(mm);
         }
     }
 }
