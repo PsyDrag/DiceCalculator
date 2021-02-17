@@ -117,6 +117,16 @@ app {
     color: red;
 }
 
+div.row > p {
+    margin: 0;
+}
+
+.example {
+    font-size: 18px;
+    white-space: pre-wrap;
+    font-family: monospace;
+}
+
 #blazor-error-ui {
     background: lightyellow;
     bottom: 0;
@@ -147,6 +157,10 @@ app {
 
     .main .top-row a, .main .top-row .btn-link {
         margin-left: 0;
+    }
+
+    .example {
+        font-size: 12px;
     }
 }
 
