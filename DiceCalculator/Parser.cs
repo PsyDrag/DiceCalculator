@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace DiceCalculator
 {
@@ -15,6 +16,17 @@ namespace DiceCalculator
             }
             else
             {
+                line = line.Replace(" ", "");
+                for (int i = 0; i < line.Length; i++)
+                {
+                    if (line[i] == '+' || line[i] == '-' || line[i] == '*' || line[i] == '/')
+                    {
+                        line = line.Insert(i + 1, " ");
+                        line = line.Insert(i, " ");
+                        i += 2;
+                    }
+                }
+
                 var dice = new List<Die>();
                 var modifiers = new List<Modifier>();
                 bool shouldLookBack = false;
@@ -81,6 +93,15 @@ namespace DiceCalculator
         public static MinMax ParseMinMax(string line)
         {
             line = line.ToLower();
+            line = line.Replace(" ", "");
+            for (int i = 0; i < line.Length; i++)
+            {
+                if (i != 0 && char.IsLetter(line[i]) && char.IsNumber(line[i-1]))
+                {
+                    line = line.Insert(i, " ");
+                    i++;
+                }
+            }
 
             int min = 0;
             float avg = 0f;
