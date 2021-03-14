@@ -21,14 +21,23 @@
                     <InputText class="col-12 col-md-auto" @bind-Value="diceRollInput" />
                     <button class="btn btn-primary col-12 col-md-auto" @onclick="CalculateDiceRoll">Calculate</button>
                 </div>
-                <div class="row" style="margin-top:10px; justify-content: space-evenly">
-                    @if (diceRollOutput != null)
-                    {
+                @if (diceRollOutput != null)
+                {
+                    <div class="row" style="margin-top:10px; justify-content: space-evenly">
                         <p>Min: @diceRollOutput.Min</p>
                         <p>Avg: @diceRollOutput.Avg</p>
                         <p>Max: @diceRollOutput.Max</p>
+                    </div>
+                    @if (diceRollOutput.MinMaxCalcs != null)
+                    {
+                        @foreach (var calc in diceRollOutput.MinMaxCalcs)
+                        {
+                            <div class="row" style="margin-top:10px; justify-content: space-evenly">
+                                <p>@calc.Key: @calc.Value.Percentage%</p>
+                            </div>
+                        }
                     }
-                </div>
+                }
             </div>
             <div class="col-1"></div>
             <div class="col-auto">
