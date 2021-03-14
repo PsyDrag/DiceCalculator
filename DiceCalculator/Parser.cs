@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace DiceCalculator
 {
@@ -60,16 +59,16 @@ namespace DiceCalculator
                             var lookBackOp = components[i - 1];
                             diceOp = lookBackOp switch
                             {
-                                "+" => Operation.Add.Value,
-                                "-" => Operation.Subtract.Value,
-                                "*" => Operation.Multiply.Value,
-                                "/" => Operation.Divide.Value,
-                                _   => Operation.Add.Value
+                                Operation.Add      => Operation.Add,
+                                Operation.Subtract => Operation.Subtract,
+                                Operation.Multiply => Operation.Multiply,
+                                Operation.Divide   => Operation.Divide,
+                                _                  => Operation.Add
                             };
                         }
                         else
                         {
-                            diceOp = Operation.Add.Value;
+                            diceOp = Operation.Add;
                         }
                         dice.Add(new Die(amt, keepHigh, keep, type, diceOp));
                         shouldLookBack = false;
