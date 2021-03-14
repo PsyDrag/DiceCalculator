@@ -14,49 +14,48 @@
         <div class="row">
             <div class="col"></div>
             <div class="col-auto">
-                <div>
-                    <div class="row">
-                        <h5 class="col" style="text-align: center;">Dice Roll</h5>
-                    </div>
-                    <div class="row">
-                        <InputText class="col-12 col-md-auto" @bind-Value="diceRollInput" />
-                        <button class="btn btn-primary col-12 col-md-auto" @onclick="CalculateDiceRoll">Calculate</button>
-                    </div>
-                    <div class="row" style="margin-top:10px; justify-content: space-evenly">
-                        @if (diceRollOutput != null)
-                        {
-                            <p>Min: @diceRollOutput.Min</p>
-                            <p>Avg: @diceRollOutput.Avg</p>
-                            <p>Max: @diceRollOutput.Max</p>
-                        }
-                    </div>
+                <div class="row">
+                    <h5 class="col" style="text-align: center;">Dice Roll</h5>
                 </div>
-                <div style="margin-top:100px">
-                    <div class="row">
-                        <h5 class="col" style="text-align: center;">Min Max</h5>
-                    </div>
-                    <div class="row">
-                        <InputText class="col-12 col-md-auto" @bind-Value="minMaxInput" />
-                        <button class="btn btn-primary col-12 col-md-auto" @onclick="CalculateMinMax">Calculate</button>
-                    </div>
-                    <div class="row" style="margin-top:10px; justify-content: center">
-                        @if (minMaxOutput != null)
+                <div class="row">
+                    <InputText class="col-12 col-md-auto" @bind-Value="diceRollInput" />
+                    <button class="btn btn-primary col-12 col-md-auto" @onclick="CalculateDiceRoll">Calculate</button>
+                </div>
+                <div class="row" style="margin-top:10px; justify-content: space-evenly">
+                    @if (diceRollOutput != null)
+                    {
+                        <p>Min: @diceRollOutput.Min</p>
+                        <p>Avg: @diceRollOutput.Avg</p>
+                        <p>Max: @diceRollOutput.Max</p>
+                    }
+                </div>
+            </div>
+            <div class="col-1"></div>
+            <div class="col-auto">
+                <div class="row">
+                    <h5 class="col" style="text-align: center;">Min Max</h5>
+                </div>
+                <div class="row">
+                    <InputText class="col-12 col-md-auto" @bind-Value="minMaxInput" />
+                    <button class="btn btn-primary col-12 col-md-auto" @onclick="CalculateMinMax">Calculate</button>
+                </div>
+                <div class="row" style="margin-top:10px; justify-content: center">
+                    @if (minMaxOutput != null)
+                    {
+                        @foreach (var die in minMaxOutput.Dice)
                         {
-                            @foreach (var die in minMaxOutput.Dice)
+                            <p>@die.TotalDiceAmount</p>
+                            <p>d</p>
+                            <p>@die.DiceType</p>
+                        }
+                        @foreach (var mod in minMaxOutput.Modifiers)
+                        {
+                            @if (mod.Number != 0)
                             {
-                                <p>@die.TotalDiceAmount</p>
-                                <p>d</p>
-                                <p>@die.DiceType</p>
-                            }
-                            @foreach (var mod in minMaxOutput.Modifiers)
-                            {
-                                @if (mod.Number != 0)
-                                {
-                                    <p> @mod.Operation @mod.Number</p>
-                                }
+                                <p> @mod.Operation @mod.Number</p>
                             }
                         }
-                    </div>
+                    }
                 </div>
             </div>
             <div class="col"></div>
