@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using DiceCalculator;
+﻿using DiceCalculator;
 
 namespace WasmDiceCalculator.Pages
 {
