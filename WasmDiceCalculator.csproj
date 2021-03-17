@@ -16,7 +16,6 @@
     <Folder Include="DiceCalculator\" />
   </ItemGroup>
 
-  <!--<Target Condition="!Exists('DiceCalculator')" Name="PreBuild" BeforeTargets="PreBuildEvent">-->
   <Target Condition="$(Configuration) == 'Debug'" Name="PreBuild" BeforeTargets="PreBuildEvent">
 	  <Exec Command="xcopy /y &quot;$(ProjectDir)..\..\DiceCalculator\*.cs&quot; &quot;$(ProjectDir)DiceCalculator\&quot;" />
   </Target>

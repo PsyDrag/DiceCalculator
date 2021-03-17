@@ -30,12 +30,24 @@
                     </div>
                     @if (diceRollOutput.MinMaxCalcs != null)
                     {
-                        @foreach (var calc in diceRollOutput.MinMaxCalcs)
-                        {
-                            <div class="row" style="margin-top:10px; justify-content: space-evenly">
-                                <p>@calc.Key: @calc.Value.Percentage%</p>
-                            </div>
-                        }
+                        <table class="row" style="margin:10px 0px 20px 0px; justify-content: space-evenly">
+                            <tbody style="width:300px; padding:10px; border:solid 1px black">
+                                @foreach (var calc in diceRollOutput.MinMaxCalcs)
+                                {
+                                    <tr style="width:inherit">
+                                        <td align="right">@calc.Key:</td>
+                                        <td style="width:inherit">
+                                            <div>
+                                                <svg width="@CalculateWidth(calc.Value.Percentage)" height="25px">
+                                                    <rect width="100%" height="100%" style="fill:rgb(0, 38, 255)" />
+                                                </svg>
+                                                <span>@calc.Value.Percentage%</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
                     }
                 }
             </div>
