@@ -5,7 +5,7 @@
         public Die(int diceAmount, int diceType, string operation)
             => (TotalDiceAmount, DiceType, Operation) = (diceAmount, diceType, operation);
 
-        public Die(int total, bool keepHigh, int keep, int diceType, string operation)
+        public Die(int total, int diceType, bool keepHigh, int keep, string operation)
             => (TotalDiceAmount, KeepHigh, KeepAmount, DiceType, Operation) = (total, keepHigh, keep, diceType, operation);
 
         public int TotalDiceAmount { get; set; }

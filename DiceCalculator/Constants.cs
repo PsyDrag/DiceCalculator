@@ -10,8 +10,8 @@
             "  d6 * 2                 multiply\n" +
             "  d20 + 3d6 + 5          multiple dice rolls\n" +
             "  d6 - 3 * 2             multiple modifiers (calculations are made from left to right)\n" +
-            "  4kh3d6                 standard ability roll\n" +
-            "  2kl1d20                with disadvantage\n" +
+            "  4d6kh3                 standard ability roll\n" +
+            "  2d20kl1                with disadvantage\n" +
             "  6kl5d4 + 3kh2d6 + 2    you can do this..but why?";
             //"  d20 + 6 ac 18          attack roll against AC 18\n" +
             //"  d20 + 4 dc 15          check against DC 15";
@@ -37,8 +37,8 @@
             "\n" +
             "Dice Roll Components:\n" +
             "  d                                 Do I really need to explain this one?\n" +
-            "  kh                                Keep highest x number of dice rolls (e.g. 4kh3)\n" +
-            "  kl                                Keep lowest x number of dice rolls (e.g. 2kl1)\n" +
+            "  kh                                Keep highest x number of dice rolls (e.g. 4d6kh3)\n" +
+            "  kl                                Keep lowest x number of dice rolls (e.g. 2d20kl1)\n" +
             //"  ac                                Show pass/fail % against an AC\n" +
             //"  dc                                Show pass/fail % against a DC\n" +
             "\n" +

@@ -35,14 +35,16 @@ namespace DiceCalculator
                     if (components[i].Contains('d'))
                     {
                         var die = components[i].Split('d');
-                        int amt, keep = 0;
+                        int amt = die[0] == string.Empty ? 1 : int.Parse(die[0]);
+                        int type = 0;
+                        int keep = 0;
                         bool keepHigh = false;
                         string diceOp;
 
-                        if (die[0].Contains('k'))
+                        if (die[1].Contains('k'))
                         {
-                            var keepNums = die[0].Split('k');
-                            amt = int.Parse(keepNums[0]);
+                            var keepNums = die[1].Split('k');
+                            type = int.Parse(keepNums[0]);
 
                             var keepAmt = int.Parse(keepNums[1][1..]);
                             keep = keepAmt > amt ? amt : keepAmt;
@@ -50,9 +52,8 @@ namespace DiceCalculator
                         }
                         else
                         {
-                            amt = die[0] == string.Empty ? 1 : int.Parse(die[0]);
+                            type = int.Parse(die[1]);
                         }
-                        var type = int.Parse(die[1]);
 
                         if (shouldLookBack)
                         {
@@ -70,7 +71,7 @@ namespace DiceCalculator
                         {
                             diceOp = Operation.Add;
                         }
-                        dice.Add(new Die(amt, keepHigh, keep, type, diceOp));
+                        dice.Add(new Die(amt, type, keepHigh, keep, diceOp));
                         shouldLookBack = false;
                     }
                     else if ((components[i] == "+" || components[i] == "-") && components[i+1].Contains('d'))
