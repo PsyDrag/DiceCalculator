@@ -8,38 +8,34 @@ namespace DiceCalculator
     {
         public static MinMax CalculateDiceRoll(DiceRoll diceRoll)
         {
-            var isKeepRoll = diceRoll.Dice.Any(d => d.KeepAmount != 0);
-
-            //CalculateMinAndMaxValues(diceRoll, out var min, out var max);
-            
+            // check if dice roll is too large
+            foreach (var die in diceRoll.Dice)
+            {
+                if (Math.Pow(die.DiceType, die.TotalDiceAmount) > int.MaxValue) // basically >2.5billion
+                {
+                    Printer.PrintError("Dice roll too large to calculate in a decent amount of time");
+                    return new MinMax(0, 0, 0);
+                }
+            }
 
             int min = 0;
             int max = 0;
-            float avg;
             Dictionary<int, Calculations> calcs = null;
+            calcs = CalculateMinAndMaxValues(diceRoll);
+            min = calcs.First().Key;
+            max = calcs.Last().Key;
+            
+
+            float avg;
+            var isKeepRoll = diceRoll.Dice.Any(d => d.KeepAmount != 0);
             if (!isKeepRoll)
             {
-                calcs = CalculateMinAndMaxValues(diceRoll);
-                min = calcs.First().Key;
-                max = calcs.Last().Key;
-
                 // mid-range
                 avg = ((float)max + min) / 2;
             }
             else
             {
-                CalculateMinAndMaxValues(diceRoll, out min, out max);
-
                 //use calcs instead of calculating again
-                foreach (var die in diceRoll.Dice)
-                {
-                    if (Math.Pow(die.DiceType, die.TotalDiceAmount) > int.MaxValue) // basically >2.5billion
-                    {
-                        Printer.PrintError("Dice roll too large to calculate in a decent amount of time");
-                        return new MinMax(0, 0, 0);
-                    }
-                }
-
                 float tempAvg = 0;
                 foreach (var die in diceRoll.Dice)
                 {
@@ -86,84 +82,80 @@ namespace DiceCalculator
                 avg = AddModifiers(tempAvg, diceRoll.Modifiers);
             }
 
-            //return new MinMax(min, avg, max);
             return new MinMax(min, avg, max, calcs);
         }
-
-        private static void CalculateMinAndMaxValues(DiceRoll diceRoll, out int min, out int max)
-        {
-            min = 0;
-            max = 0;
-            foreach (var die in diceRoll.Dice)
-            {
-                var minAmt = die.KeepAmount == 0 ? die.TotalDiceAmount : die.KeepAmount;
-                var maxAmt = (die.KeepAmount == 0 ? die.TotalDiceAmount : die.KeepAmount) * die.DiceType;
-                if (die.Operation == Operation.Subtract)
-                {
-                    min -= maxAmt;
-                    max -= minAmt;
-                }
-                else
-                {
-                    min += minAmt;
-                    max += maxAmt;
-                }
-            }
-
-            min = (int)AddModifiers(min, diceRoll.Modifiers);
-            max = (int)AddModifiers(max, diceRoll.Modifiers);
-        }
  
-        //
-        // d3 + 2kh1d2
-        // [3][4] -> [12][1]
-        // 1,[1,1] 1,[1,2] 1,[2,1] 1,[2,2]    2 3,3
-        // 2,[1,1] 2,[1,2] 2,[2,1] 2,[2,2]      3   4,3
-        // 3,[1,1] 3,[1,2] 3,[2,1] 3,[2,2]          4   5,3
-        //                                    -----------
-        //                                    1 4   4   3    12
-        //
-        //
-        // [2,1,3] -> if keepHigh 2, sort descending, insert 2 == [2,3,2,1]
-        // [2,1,3] -> if keepLow  1, sort ascending,  insert 1 == [1,1,2,3]
-        // object[] asdf = new[] { 1, [1,2,3] }
-        // if (asdf[1] is List)
-        //
-        // d3 + 2kh1d2    +3,+???
-        //
         private static Dictionary<int, Calculations> CalculateMinAndMaxValues(DiceRoll diceRoll)
         {
-            var dice = new List<object[]>();
+            var summedMatrix = new List<int>();
             foreach (var die in diceRoll.Dice)
             {
+                var dice = new List<object[]>();
                 for (int i = 0; i < die.TotalDiceAmount; i++)
                 {
                     dice.Add(new object[] { die.Operation, die.DiceType });
                 }
-            }
 
-            // replace with linq statement?
-            int rows = 1;
-            foreach (var die in diceRoll.Dice)
-            {
-                rows *= (int)Math.Pow(die.DiceType, die.TotalDiceAmount);
-            }
-            var matrix = new List<object>[rows]; // each row is a list like '{ 1, [1,2,3], 2 }'
+                int rows = (int)Math.Pow(die.DiceType, die.TotalDiceAmount);
+                var partialMatrix = new List<int>[rows];
+                var diceIndex = 0;
+                var rowIndex = 0;
+                CalculateRecursively(dice, ref diceIndex, partialMatrix, ref rowIndex, colList: new List<int>());
 
-            var diceIndex = 0;
-            var rowIndex = 0;
-            CalculateRecursively(dice, ref diceIndex, matrix, ref rowIndex, colList: new List<object>());
+                // TODO: merge with DiceRoller.GetDiceRolls
+                if (die.KeepAmount != 0 && die.KeepAmount < die.TotalDiceAmount)
+                {
+                    foreach (var row in partialMatrix)
+                    {
+                        row.Sort();
+                        var amtToRemove = die.TotalDiceAmount - die.KeepAmount;
+                        if (die.KeepHigh)
+                        {
+                            row.RemoveRange(0, amtToRemove);
+                        }
+                        else
+                        {
+                            row.RemoveRange(die.KeepAmount, amtToRemove);
+                        }
+                    }
+                }
+
+                // add together each row of the partial matrix,
+                // turning it negative if the die operation is subtract
+                var dieSumMatrix = partialMatrix.Select(row =>
+                {
+                    var sum = 0;
+                    foreach (var num in row)
+                    {
+                        sum += num;
+                    }
+                    return sum;
+                });
+
+                if (summedMatrix.Count == 0)
+                {
+                    summedMatrix.AddRange(dieSumMatrix);
+                }
+                else
+                {
+                    var tempSummedMatrix = new List<int>();
+                    foreach (var item in summedMatrix)
+                    {
+                        foreach (var item2 in dieSumMatrix)
+                        {
+                            tempSummedMatrix.Add(item + item2);
+                        }
+                    }
+                    summedMatrix = tempSummedMatrix;
+                }
+            }
 
             var calcs = new Dictionary<int, Calculations>();
 
-            foreach (var nums in matrix)
+            // calculate frequency of each dice num
+            foreach (var num in summedMatrix)
             {
-                var sum = 0;
-                foreach (var num in nums)
-                {
-                    sum += (int)num;
-                }
-                var key = (int)AddModifiers(sum, diceRoll.Modifiers);
+                var key = (int)AddModifiers(num, diceRoll.Modifiers);
                 if (calcs.ContainsKey(key))
                 {
                     calcs[key].Frequency++;
@@ -174,8 +166,10 @@ namespace DiceCalculator
                 }
             }
 
+            // put dice nums in order from lowest to highest
             calcs = calcs.OrderBy(kvp => kvp.Key).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
+            // calculate percentages
             var totalNums = calcs.Values.Sum(v => v.Frequency);
             foreach (var calc in calcs)
             {
@@ -186,7 +180,7 @@ namespace DiceCalculator
             return calcs;
         }
 
-        private static void CalculateRecursively(List<object[]> dice, ref int diceIndex, List<object>[] matrix, ref int rowIndex, List<object> colList)
+        private static void CalculateRecursively(List<object[]> dice, ref int diceIndex, List<int>[] matrix, ref int rowIndex, List<int> colList)
         {
             if (diceIndex >= dice.Count)
             {
