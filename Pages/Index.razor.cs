@@ -1,5 +1,4 @@
-﻿using System;
-using DiceCalculator;
+﻿using DiceCalculator;
 
 namespace WasmDiceCalculator.Pages
 {
@@ -22,9 +21,7 @@ namespace WasmDiceCalculator.Pages
         private void RollDice()
         {
             var dr = Parser.ParseDiceRoll(diceRollInput);
-            //rollOutput = DiceRoller.RollDice(dr);
-            var asdf = new Random();
-            rollOutput = asdf.Next(20);
+            rollOutput = DiceRoller.RollDice(dr);
             useRollOutput = true;
         }
 
