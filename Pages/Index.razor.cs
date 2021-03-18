@@ -20,10 +20,5 @@ namespace WasmDiceCalculator.Pages
             var mm = Parser.ParseMinMax(minMaxInput);
             minMaxOutput = Calculator.CalculateMinMax(mm);
         }
-
-        private string CalculateWidth(float value)
-        {
-            return (value * 2).ToString() + "%";
-        }
     }
 }
