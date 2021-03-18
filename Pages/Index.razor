@@ -44,12 +44,11 @@
                         <tbody style="width:300px; padding:10px; border:solid 1px black">
                             @foreach (var calc in diceRollOutput.MinMaxCalcs)
                             {
-                                var calculatedWidth = calc.Value.Percentage * 2 + "%";
                                 <tr style="width:inherit">
                                     <td align="right">@calc.Key:</td>
                                     <td style="width:inherit">
                                         <div>
-                                            <svg width="@calculatedWidth" height="25px">
+                                            <svg width="@calc.Value.Percentage%" height="25px">
                                                 <rect width="100%" height="100%" style="fill:rgb(0, 38, 255)" />
                                             </svg>
                                             <span>@calc.Value.Percentage%</span>
