@@ -1,4 +1,5 @@
-﻿using DiceCalculator;
+﻿using System;
+using DiceCalculator;
 
 namespace WasmDiceCalculator.Pages
 {
@@ -7,12 +8,24 @@ namespace WasmDiceCalculator.Pages
         private string diceRollInput = "3d6";
         private string minMaxInput = "min:1 max:20";
         private MinMax diceRollOutput = null;
+        private int? rollOutput = null;
+        private bool useRollOutput = false;
         private DiceRoll minMaxOutput = null;
 
         private void CalculateDiceRoll()
         {
             var dr = Parser.ParseDiceRoll(diceRollInput);
             diceRollOutput = Calculator.CalculateDiceRoll(dr);
+            useRollOutput = false;
+        }
+
+        private void RollDice()
+        {
+            var dr = Parser.ParseDiceRoll(diceRollInput);
+            //rollOutput = DiceRoller.RollDice(dr);
+            var asdf = new Random();
+            rollOutput = asdf.Next(20);
+            useRollOutput = true;
         }
 
         private void CalculateMinMax()
