@@ -12,7 +12,7 @@
             "  d6 - 3 * 2             multiple modifiers (calculations are made from left to right)\n" +
             "  4d6kh3                 standard ability roll\n" +
             "  2d20kl1                with disadvantage\n" +
-            "  6kl5d4 + 3kh2d6 + 2    you can do this..but why?";
+            "  6d4kl5 + 3d6kh2 + 2    you can do this..but why?";
             //"  d20 + 6 ac 18          attack roll against AC 18\n" +
             //"  d20 + 4 dc 15          check against DC 15";
 
