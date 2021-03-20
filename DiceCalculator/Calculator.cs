@@ -18,68 +18,21 @@ namespace DiceCalculator
                 }
             }
 
-            int min = 0;
-            int max = 0;
-            Dictionary<int, Calculations> calcs = null;
-            calcs = CalculateMinAndMaxValues(diceRoll);
-            min = calcs.First().Key;
-            max = calcs.Last().Key;
-            
+            var calcs = CalculateMinAndMaxValues(diceRoll);
+            var min = calcs.First().Key;
+            var max = calcs.Last().Key;
 
-            float avg;
-            var isKeepRoll = diceRoll.Dice.Any(d => d.KeepAmount != 0);
-            if (!isKeepRoll)
+            float tempAvg = 0f;
+            foreach (var item in calcs)
             {
-                // mid-range
-                avg = ((float)max + min) / 2;
+                tempAvg += item.Key * item.Value.Percentage;
             }
-            else
+            var avg = (float)Math.Round(tempAvg / 100, 3);
+
+            // round percentages to three decimals after finding average
+            foreach (var item in calcs)
             {
-                //use calcs instead of calculating again
-                float tempAvg = 0;
-                foreach (var die in diceRoll.Dice)
-                {
-                    var diceType = die.DiceType;
-                    var tdr = die.TotalDiceAmount;
-                    var ntdr = (long)Math.Pow(diceType, tdr);
-                
-                    var permutations = new int[tdr];
-                    var totalOfValues = 0L;
-                    // input first permutation
-                    for (int i = 0; i < tdr; i++)
-                    {
-                        permutations[i] = 1;
-                    }
-                    totalOfValues += die.KeepAmount;
-
-                    // for the remaining permutations, increase the right-most number until is reaches n(the diceType)
-                    // if the number is n, increase the number to its left and set this number to 1
-                    // copy the array and sort
-                    // remove numbers from left or right depending on if you are keeping high or low
-                    // add remaining numbers to totalOfValues
-                    for (int i = 2; i <= ntdr; i++)
-                    {
-                        // increase
-                        IncreasePermutations(permutations, tdr - 1, diceType);
-
-                        // copy and sort
-                        var clone = (int[])permutations.Clone();
-                        Array.Sort(clone);
-
-                        // add
-                        var first = die.KeepHigh ? tdr - die.KeepAmount : 0;
-                        var last = die.KeepHigh ? tdr : die.KeepAmount;
-                        for (int j = first; j < last; j++)
-                        {
-                            totalOfValues += clone[j];
-                        }
-                    }
-                    var dieAvg = (float)Math.Round(totalOfValues / (float)ntdr, 3);
-                    tempAvg = die.Operation == Operation.Subtract
-                        ? tempAvg - dieAvg
-                        : tempAvg + dieAvg;
-                }
-                avg = AddModifiers(tempAvg, diceRoll.Modifiers);
+                item.Value.Percentage = (float)Math.Round(item.Value.Percentage, 3);
             }
 
             return new MinMax(min, avg, max, calcs);
@@ -90,10 +43,10 @@ namespace DiceCalculator
             var summedMatrix = new List<int>();
             foreach (var die in diceRoll.Dice)
             {
-                var dice = new List<object[]>();
+                var dice = new List<int>();
                 for (int i = 0; i < die.TotalDiceAmount; i++)
                 {
-                    dice.Add(new object[] { die.Operation, die.DiceType });
+                    dice.Add(die.DiceType);
                 }
 
                 int rows = (int)Math.Pow(die.DiceType, die.TotalDiceAmount);
@@ -128,6 +81,10 @@ namespace DiceCalculator
                     foreach (var num in row)
                     {
                         sum += num;
+                    }
+                    if (die.Operation == Operation.Subtract)
+                    {
+                        sum *= -1;
                     }
                     return sum;
                 });
@@ -174,13 +131,13 @@ namespace DiceCalculator
             foreach (var calc in calcs)
             {
                 var pct = (calc.Value.Frequency * 100f) / totalNums;
-                calc.Value.Percentage = (float)Math.Round(pct, 3);
+                calc.Value.Percentage = pct;
             }
 
             return calcs;
         }
 
-        private static void CalculateRecursively(List<object[]> dice, ref int diceIndex, List<int>[] matrix, ref int rowIndex, List<int> colList)
+        private static void CalculateRecursively(List<int> dice, ref int diceIndex, List<int>[] matrix, ref int rowIndex, List<int> colList)
         {
             if (diceIndex >= dice.Count)
             {
@@ -192,11 +149,9 @@ namespace DiceCalculator
             }
 
             var die = dice[diceIndex];
-            var isSubtract = die[0].ToString() == Operation.Subtract;
-            for (int i = 1; i <= (int)die[1]; i++)
+            for (int i = 1; i <= die; i++)
             {
-                var num = isSubtract ? -1 * i : i;
-                colList.Add(num);
+                colList.Add(i);
                 diceIndex++;
                 CalculateRecursively(dice, ref diceIndex, matrix, ref rowIndex, colList);
             }

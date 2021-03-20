@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace DiceCalculator
 {
@@ -17,6 +18,7 @@ namespace DiceCalculator
         public Dictionary<int, Calculations> MinMaxCalcs { get; internal set; }
     }
 
+    [DebuggerDisplay("Freq: {Frequency}, Pct: {Percentage}")]
     public class Calculations
     {
         public Calculations(int freq, float pct)
