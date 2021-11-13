@@ -8,12 +8,16 @@ namespace DiceCalculator
     {
         public static MinMax CalculateDiceRoll(DiceRoll diceRoll)
         {
+            if (diceRoll.Dice == null || diceRoll.Modifiers == null)
+            {
+                return new MinMax(0, 0, 0);
+            }
+
             // check if dice roll is too large
             foreach (var die in diceRoll.Dice)
             {
                 if (Math.Pow(die.DiceType, die.TotalDiceAmount) > int.MaxValue) // basically >2.5billion
                 {
-                    Printer.PrintError("Dice roll too large to calculate in a decent amount of time");
                     return new MinMax(0, 0, 0);
                 }
             }
@@ -204,7 +208,6 @@ namespace DiceCalculator
         {
             if (minMax.Avg != 0.0)
             {
-                Printer.PrintError("Calculating based off of avg is not yet implemented");
                 return new DiceRoll(null, null);
             }
 

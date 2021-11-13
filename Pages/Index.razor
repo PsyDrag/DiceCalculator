@@ -31,14 +31,21 @@
                 }
                 else if (diceRollOutput != null)
                 {
-                    <div class="row" style="margin-top:10px; justify-content: space-evenly">
-                        <p>Min: @diceRollOutput.Min</p>
-                        <p>Avg: @diceRollOutput.Avg</p>
-                        <p>Max: @diceRollOutput.Max</p>
-                    </div>
+                    if (diceRollOutput.Min != 0 || diceRollOutput.Avg != 0 || diceRollOutput.Max != 0)
+                    {
+                        <div class="row" style="margin-top:10px; justify-content: space-evenly">
+                            <p>Min: @diceRollOutput.Min</p>
+                            <p>Avg: @diceRollOutput.Avg</p>
+                            <p>Max: @diceRollOutput.Max</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <p style="color: red; width: 300px">Something went wrong. Either something in your input is not yet implemented, or the dice roll is too large to calculate in a decent amount of time.</p>
+                    }
                 }
 
-                @if (diceRollOutput != null && diceRollOutput.MinMaxCalcs != null)
+                @if (!useRollOutput && diceRollOutput != null && diceRollOutput.MinMaxCalcs != null)
                 {
                     <table class="row" style="margin:10px 0px 20px 0px; justify-content: space-evenly">
                         <tbody style="width:300px; padding:10px; border:solid 1px black">
@@ -72,17 +79,24 @@
                 <div class="row" style="margin-top:10px; justify-content: center">
                     @if (minMaxOutput != null)
                     {
-                        @foreach (var die in minMaxOutput.Dice)
+                        if (minMaxOutput.Dice != null && minMaxOutput.Modifiers != null)
                         {
-                            string formattedDie = die.TotalDiceAmount + "d" + die.DiceType;
-                            <p>@formattedDie</p>
-                        }
-                        @foreach (var mod in minMaxOutput.Modifiers)
-                        {
-                            @if (mod.Number != 0)
+                            @foreach (var die in minMaxOutput.Dice)
                             {
-                                <p> @mod.Operation @mod.Number</p>
+                                string formattedDie = die.TotalDiceAmount + "d" + die.DiceType;
+                                <p>@formattedDie</p>
                             }
+                            @foreach (var mod in minMaxOutput.Modifiers)
+                            {
+                                @if (mod.Number != 0)
+                                {
+                                    <p> @mod.Operation @mod.Number</p>
+                                }
+                            }
+                        }
+                        else
+                        {
+                            <p style="color: red; width: 275px">Something went wrong. Make sure your input is correct and does not use "avg". Calculating based off of avg is not yet implemented.</p>
                         }
                     }
                 </div>

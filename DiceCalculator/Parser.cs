@@ -10,7 +10,6 @@ namespace DiceCalculator
 
             if (line.Contains("ac") || line.Contains("dc"))
             {
-                Printer.PrintError("Something in your input is not yet implemented");
                 return new DiceRoll(null, null);
             }
             else
