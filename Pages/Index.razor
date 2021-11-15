@@ -52,13 +52,13 @@
                             @foreach (var calc in diceRollOutput.MinMaxCalcs)
                             {
                                 <tr style="width:inherit">
-                                    <td align="right">@calc.Key:</td>
+                                    <td align="right">@calc.Value:</td>
                                     <td style="width:inherit">
                                         <div>
-                                            <svg width="@calc.Value.Percentage%" height="25px">
+                                            <svg width="@calc.Percentage%" height="25px">
                                                 <rect width="100%" height="100%" style="fill:rgb(0, 38, 255)" />
                                             </svg>
-                                            <span>@calc.Value.Percentage%</span>
+                                            <span>@calc.Percentage%</span>
                                         </div>
                                     </td>
                                 </tr>

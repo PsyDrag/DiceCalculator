@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace DiceCalculator
@@ -24,43 +23,43 @@ namespace DiceCalculator
             }
 
             var calcs = CalculateMinAndMaxValues(diceRoll);
-            var min = calcs.First().Key;
-            var max = calcs.Last().Key;
+            int min = calcs.First().Value;
+            int max = calcs.Last().Value;
 
             float tempAvg = 0f;
-            foreach (var item in calcs)
+            foreach (var calc in calcs)
             {
-                tempAvg += item.Key * item.Value.Percentage;
+                tempAvg += calc.Value * calc.Percentage;
             }
             var avg = (float)Math.Round(tempAvg / 100, 3);
 
             // round percentages to three decimals after finding average
             foreach (var item in calcs)
             {
-                item.Value.Percentage = (float)Math.Round(item.Value.Percentage, 3);
+                item.Percentage = (float)Math.Round(item.Percentage, 3);
             }
 
             return new MinMax(min, avg, max, calcs);
         }
 
-        private static IDictionary<int, Calculations> CalculateMinAndMaxValues(DiceRoll diceRoll)
+        private static IList<Calculations> CalculateMinAndMaxValues(DiceRoll diceRoll)
         {
-            var fullTotalsAndCount = new Dictionary<int, int>();
+            var diceRollTotalsAndCount = new Dictionary<int, int>();
             foreach (var die in diceRoll.Dice)
             {
-                var partialMatrix4 = new List<int[]>();
-                var diceIndex = 0;
-                CalculateRecursively(die, partialMatrix4, ref diceIndex, colList: new int[die.TotalDiceAmount]);
+                var permutations = new List<int[]>();
+                int diceIndex = 0;
+                CalculateRecursively(die, permutations, ref diceIndex, colList: new int[die.TotalDiceAmount]);
 
-                var dieTotalsAndCount = AddPartialMatrixRows(partialMatrix4, die);
-
-                AddPartialMatrixToFullMatrix(ref fullTotalsAndCount, dieTotalsAndCount);
+                var dieTotalsAndCount = AddUpPermutations(permutations, die);
+                AddDieTotalsToDiceRollTotals(ref diceRollTotalsAndCount, dieTotalsAndCount);
             }
 
-            return DoMinMaxCalculations(fullTotalsAndCount, diceRoll);
+            var initalCalcs = AddModifiers(diceRollTotalsAndCount, diceRoll);
+            return CalculatePercentages(initalCalcs);
         }
 
-        private static void CalculateRecursively(Die die, List<int[]> matrix, ref int diceIndex, int[] colList)
+        private static void CalculateRecursively(Die die, IList<int[]> matrix, ref int diceIndex, int[] colList)
         {
             if (diceIndex >= die.TotalDiceAmount)
             {
@@ -97,14 +96,14 @@ namespace DiceCalculator
             return dieRolls;
         }
 
-        private static Dictionary<int, int> AddPartialMatrixRows(List<int[]> partialMatrix, Die die)
+        private static Dictionary<int, int> AddUpPermutations(IList<int[]> permutations, Die die)
         {
-            // add together each row of the partial matrix,
+            // add all nums of each permutation,
             // turning it negative if the die operation is subtract
             var dieTotalsAndCount = new Dictionary<int, int>();
-            foreach (var list in partialMatrix)
+            foreach (var list in permutations)
             {
-                var sum = 0;
+                int sum = 0;
                 foreach (var num in list)
                 {
                     sum += num;
@@ -113,6 +112,7 @@ namespace DiceCalculator
                 {
                     sum *= -1;
                 }
+
                 if (dieTotalsAndCount.ContainsKey(sum))
                 {
                     dieTotalsAndCount[sum]++;
@@ -125,70 +125,50 @@ namespace DiceCalculator
             return dieTotalsAndCount;
         }
 
-        private static void AddPartialMatrixToFullMatrix(ref Dictionary<int, int> fullTotalsAndCount,
+        private static void AddDieTotalsToDiceRollTotals(ref Dictionary<int, int> diceRollTotalsAndCount,
             Dictionary<int, int> dieTotalsAndCount)
         {
-            if (fullTotalsAndCount.Count == 0)
+            if (diceRollTotalsAndCount.Count == 0)
             {
-                fullTotalsAndCount = dieTotalsAndCount;
+                diceRollTotalsAndCount = dieTotalsAndCount;
             }
             else
             {
-                var temp = new Dictionary<int, int>();
-                foreach (var kvp in fullTotalsAndCount)
+                var tempTotalsAndCount = new Dictionary<int, int>();
+                foreach (var currentDieTotal in diceRollTotalsAndCount)
                 {
-                    foreach (var kvp2 in dieTotalsAndCount)
+                    foreach (var dieTotal in dieTotalsAndCount)
                     {
-                        var newKey = kvp.Key + kvp2.Key;
-                        var addedValue = kvp.Value * kvp2.Value;
-                        if (temp.ContainsKey(newKey))
+                        int newTotal = currentDieTotal.Key + dieTotal.Key;
+                        int newCount = currentDieTotal.Value * dieTotal.Value;
+                        if (tempTotalsAndCount.ContainsKey(newTotal))
                         {
-                            temp[newKey] += addedValue;
+                            tempTotalsAndCount[newTotal] += newCount;
                         }
                         else
                         {
-                            temp.Add(newKey, addedValue);
+                            tempTotalsAndCount.Add(newTotal, newCount);
                         }
                     }
                 }
-                fullTotalsAndCount = temp;
+                diceRollTotalsAndCount = tempTotalsAndCount;
             }
         }
 
-        private static IDictionary<int, Calculations> DoMinMaxCalculations(IDictionary<int, int> summedMatrix,
-            DiceRoll diceRoll)
+        private static IList<Calculations> AddModifiers(IDictionary<int, int> summedMatrix, DiceRoll diceRoll)
         {
-            var calcs = new Dictionary<int, Calculations>();
-
-            // calculate frequency of each dice num
+            var calcs = new List<Calculations>();
             foreach (var kvp in summedMatrix)
             {
-                var key = (int)AddModifiers(kvp.Key, diceRoll.Modifiers);
-                if (calcs.ContainsKey(key))
-                {
-                    calcs[key].Frequency += kvp.Value;
-                }
-                else
-                {
-                    calcs.Add(key, new Calculations(kvp.Value, 0));
-                }
+                int key = AddModifiers(kvp.Key, diceRoll.Modifiers);
+                calcs.Add(new Calculations(key, kvp.Value, 0));
             }
 
-            // put dice nums in order from lowest to highest
-            calcs = calcs.OrderBy(kvp => kvp.Key).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-
-            // calculate percentages
-            var totalNums = calcs.Values.Sum(v => v.Frequency);
-            foreach (var calc in calcs)
-            {
-                var pct = (calc.Value.Frequency * 100f) / totalNums;
-                calc.Value.Percentage = pct;
-            }
-
+            calcs = calcs.OrderBy(calc => calc.Value).ToList();
             return calcs;
         }
 
-        private static float AddModifiers(float num, IEnumerable<Modifier> modifiers)
+        private static int AddModifiers(float num, IEnumerable<Modifier> modifiers)
         {
             foreach (var mod in modifiers)
             {
@@ -210,7 +190,18 @@ namespace DiceCalculator
                         break;
                 }
             }
-            return num;
+            return (int)num;
+        }
+
+        private static IList<Calculations> CalculatePercentages(IList<Calculations> calcs)
+        {
+            int totalNums = calcs.Sum(v => v.Frequency);
+            foreach (var calc in calcs)
+            {
+                float pct = (calc.Frequency * 100f) / totalNums;
+                calc.Percentage = pct;
+            }
+            return calcs;
         }
 
         private static readonly int[] diceTypes = new int[] { 4, 6, 8, 10, 12, 20, 100 };
@@ -232,7 +223,7 @@ namespace DiceCalculator
             for (int i = 1; i <= minMax.Min; i++)
             {
                 mod = minMax.Min - i;
-                var newMax = minMax.Max - mod;
+                int newMax = minMax.Max - mod;
                 if (newMax % i == 0 && diceTypes.Contains(newMax / i))
                 {
                     diceAmount = i;
