@@ -83,7 +83,7 @@
                         {
                             @foreach (var die in minMaxOutput.Dice)
                             {
-                                string formattedDie = die.TotalDiceAmount + "d" + die.DiceType;
+                                string formattedDie = die.NumDice + "d" + die.NumDieFaces;
                                 <p>@formattedDie</p>
                             }
                             @foreach (var mod in minMaxOutput.Modifiers)

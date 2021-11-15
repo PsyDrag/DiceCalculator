@@ -20,7 +20,7 @@ namespace DiceCalculator
             Console.WriteLine($"\n  {line}\n  {separator}");
 
             var die = result.Dice.First();
-            string lineToPrint = $"  {die.TotalDiceAmount}d{die.DiceType}";
+            string lineToPrint = $"  {die.NumDice}d{die.NumDieFaces}";
             var mod = result.Modifiers.First();
             if (mod.Number != 0)
             {

@@ -21,23 +21,23 @@ namespace DiceCalculator
             foreach (var die in dice)
             {
                 var dieRolls = new List<int>();
-                for (int i = 0; i < die.TotalDiceAmount; i++)
+                for (int i = 0; i < die.NumDice; i++)
                 {
-                    var num = randomizer.Next(1, die.DiceType + 1);
+                    var num = randomizer.Next(1, die.NumDieFaces + 1);
                     dieRolls.Add(num);
                 }
 
-                if (die.KeepAmount != 0 && die.KeepAmount < die.TotalDiceAmount)
+                if (die.NumDiceToKeep != 0 && die.NumDiceToKeep < die.NumDice)
                 {
                     dieRolls.Sort();
-                    var amtToRemove = die.TotalDiceAmount - die.KeepAmount;
+                    var amtToRemove = die.NumDice - die.NumDiceToKeep;
                     if (die.KeepHigh)
                     {
                         dieRolls.RemoveRange(0, amtToRemove);
                     }
                     else
                     {
-                        dieRolls.RemoveRange(die.KeepAmount, amtToRemove);
+                        dieRolls.RemoveRange(die.NumDiceToKeep, amtToRemove);
                     }
                 }
 

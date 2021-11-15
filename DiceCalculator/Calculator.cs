@@ -16,7 +16,7 @@ namespace DiceCalculator
             // check if any dice rolls are too large to be calculated in a reasonable amount of time
             foreach (var die in diceRoll.Dice)
             {
-                if (Math.Pow(die.DiceType, die.TotalDiceAmount) > 70000000) // used to be int.MAX
+                if (Math.Pow(die.NumDieFaces, die.NumDice) > 70000000) // used to be int.MAX
                 {
                     return new MinMax(0, 0, 0);
                 }
@@ -49,7 +49,7 @@ namespace DiceCalculator
             {
                 var permutations = new List<int[]>();
                 int diceIndex = 0;
-                CalculateRecursively(die, permutations, ref diceIndex, colList: new int[die.TotalDiceAmount]);
+                CalculateRecursively(die, permutations, ref diceIndex, colList: new int[die.NumDice]);
 
                 var dieTotalsAndCount = AddUpPermutations(permutations, die);
                 AddDieTotalsToDiceRollTotals(ref diceRollTotalsAndCount, dieTotalsAndCount);
@@ -61,7 +61,7 @@ namespace DiceCalculator
 
         private static void CalculateRecursively(Die die, IList<int[]> matrix, ref int diceIndex, int[] colList)
         {
-            if (diceIndex >= die.TotalDiceAmount)
+            if (diceIndex >= die.NumDice)
             {
                 var remainingSortedDice = DropNonKeepDice(die, colList.ToArray());
                 matrix.Add(remainingSortedDice);
@@ -70,7 +70,7 @@ namespace DiceCalculator
                 return;
             }
 
-            for (int i = 1; i <= die.DiceType; i++)
+            for (int i = 1; i <= die.NumDieFaces; i++)
             {
                 colList[diceIndex] = i;
                 diceIndex++;
@@ -86,12 +86,12 @@ namespace DiceCalculator
         private static int[] DropNonKeepDice(Die die, int[] dieRolls)
         {
             // TODO: merge with DiceRoller.GetDiceRolls
-            if (die.KeepAmount != 0 && die.KeepAmount < die.TotalDiceAmount)
+            if (die.NumDiceToKeep != 0 && die.NumDiceToKeep < die.NumDice)
             {
                 Array.Sort(dieRolls);
                 dieRolls = die.KeepHigh
-                    ? dieRolls.TakeLast(die.KeepAmount).ToArray()
-                    : dieRolls.Take(die.KeepAmount).ToArray();
+                    ? dieRolls.TakeLast(die.NumDiceToKeep).ToArray()
+                    : dieRolls.Take(die.NumDiceToKeep).ToArray();
             }
             return dieRolls;
         }
@@ -217,8 +217,8 @@ namespace DiceCalculator
                 return new DiceRoll(new[] { new Die(1, minMax.Max, Operation.Add) }, new[] { new Modifier("+", 0) });
             }
 
-            int diceAmount;
-            int diceType;
+            int numberOfDice;
+            int numberOfDieFaces;
             int mod;
             for (int i = 1; i <= minMax.Min; i++)
             {
@@ -226,16 +226,16 @@ namespace DiceCalculator
                 int newMax = minMax.Max - mod;
                 if (newMax % i == 0 && diceTypes.Contains(newMax / i))
                 {
-                    diceAmount = i;
-                    diceType = newMax / i;
-                    return new DiceRoll(new[] { new Die(diceAmount, diceType, Operation.Add) }, new[] { new Modifier("+", mod) });
+                    numberOfDice = i;
+                    numberOfDieFaces = newMax / i;
+                    return new DiceRoll(new[] { new Die(numberOfDice, numberOfDieFaces, Operation.Add) }, new[] { new Modifier("+", mod) });
                 }
             }
 
-            diceAmount = 1;
+            numberOfDice = 1;
             mod = minMax.Min - 1;
-            diceType = minMax.Max - mod;
-            return new DiceRoll(new[] { new Die(diceAmount, diceType, Operation.Add) }, new[] { new Modifier("+", mod) });
+            numberOfDieFaces = minMax.Max - mod;
+            return new DiceRoll(new[] { new Die(numberOfDice, numberOfDieFaces, Operation.Add) }, new[] { new Modifier("+", mod) });
         }
     }
 }
