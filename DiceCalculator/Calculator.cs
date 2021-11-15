@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace DiceCalculator
@@ -16,7 +17,7 @@ namespace DiceCalculator
             // check if any dice rolls are too large to be calculated in a reasonable amount of time
             foreach (var die in diceRoll.Dice)
             {
-                if (Math.Pow(die.DiceType, die.TotalDiceAmount) > int.MaxValue) // basically >2.5billion
+                if (Math.Pow(die.DiceType, die.TotalDiceAmount) > 70000000) // used to be int.MAX
                 {
                     return new MinMax(0, 0, 0);
                 }
@@ -41,83 +42,70 @@ namespace DiceCalculator
 
             return new MinMax(min, avg, max, calcs);
         }
- 
+
         private static IDictionary<int, Calculations> CalculateMinAndMaxValues(DiceRoll diceRoll)
         {
-            var summedMatrix = new List<int>();
+            var fullTotalsAndCount = new Dictionary<int, int>();
             foreach (var die in diceRoll.Dice)
             {
-                var dice = new List<int>();
-                for (int i = 0; i < die.TotalDiceAmount; i++)
-                {
-                    dice.Add(die.DiceType);
-                }
-
-                int rows = (int)Math.Pow(die.DiceType, die.TotalDiceAmount);
-                var partialMatrix = new List<int>[rows];
+                var partialMatrix4 = new List<int[]>();
                 var diceIndex = 0;
-                var rowIndex = 0;
-                CalculateRecursively(dice, ref diceIndex, partialMatrix, ref rowIndex, colList: new List<int>());
+                CalculateRecursively(die, partialMatrix4, ref diceIndex, colList: new int[die.TotalDiceAmount]);
 
-                DropNonKeepDice(die, partialMatrix);
+                var dieTotalsAndCount = AddPartialMatrixRows(partialMatrix4, die);
 
-                var dieSumMatrix = AddPartialMatrixRows(partialMatrix, die);
-
-                AddPartialMatrixToFullMatrix(ref summedMatrix, dieSumMatrix);
+                AddPartialMatrixToFullMatrix(ref fullTotalsAndCount, dieTotalsAndCount);
             }
 
-            return DoMinMaxCalculations(summedMatrix, diceRoll);
+            return DoMinMaxCalculations(fullTotalsAndCount, diceRoll);
         }
 
-        private static void CalculateRecursively(List<int> dice, ref int diceIndex, List<int>[] matrix,
-            ref int rowIndex, List<int> colList)
+        private static void CalculateRecursively(Die die, List<int[]> matrix, ref int diceIndex, int[] colList)
         {
-            if (diceIndex >= dice.Count)
+            if (diceIndex >= die.TotalDiceAmount)
             {
-                matrix[rowIndex] = colList.ToList();
-                rowIndex++;
-                colList.RemoveAt(colList.Count - 1);
+                var remainingSortedDice = DropNonKeepDice(die, colList.ToArray());
+                matrix.Add(remainingSortedDice);
                 diceIndex--;
+                colList[diceIndex] = 0;
                 return;
             }
 
-            var die = dice[diceIndex];
-            for (int i = 1; i <= die; i++)
+            for (int i = 1; i <= die.DiceType; i++)
             {
-                colList.Add(i);
+                colList[diceIndex] = i;
                 diceIndex++;
-                CalculateRecursively(dice, ref diceIndex, matrix, ref rowIndex, colList);
+                CalculateRecursively(die, matrix, ref diceIndex, colList);
             }
-            if (colList.Count > 0)
+            if (diceIndex > 0)
             {
-                colList.RemoveAt(colList.Count - 1);
                 diceIndex--;
+                colList[diceIndex] = 0;
             }
         }
 
-        private static void DropNonKeepDice(Die die, List<int>[] partialMatrix)
+        private static int[] DropNonKeepDice(Die die, int[] dieRolls)
         {
             // TODO: merge with DiceRoller.GetDiceRolls
             if (die.KeepAmount != 0 && die.KeepAmount < die.TotalDiceAmount)
             {
-                foreach (var row in partialMatrix)
-                {
-                    row.Sort();
-                    var index = die.KeepHigh ? 0 : die.KeepAmount;
-                    var amtToRemove = die.TotalDiceAmount - die.KeepAmount;
-                    row.RemoveRange(index, amtToRemove);
-                }
+                Array.Sort(dieRolls);
+                dieRolls = die.KeepHigh
+                    ? dieRolls.TakeLast(die.KeepAmount).ToArray()
+                    : dieRolls.Take(die.KeepAmount).ToArray();
             }
+            return dieRolls;
         }
 
-        private static IEnumerable<int> AddPartialMatrixRows(List<int>[] partialMatrix, Die die)
+        private static Dictionary<int, int> AddPartialMatrixRows(List<int[]> partialMatrix, Die die)
         {
             // add together each row of the partial matrix,
             // turning it negative if the die operation is subtract
-            return partialMatrix.Select(row =>
+            var dieTotalsAndCount = new Dictionary<int, int>();
+            foreach (var list in partialMatrix)
             {
                 var sum = 0;
-                foreach (var num in row)
+                foreach (var num in list)
                 {
                     sum += num;
                 }
@@ -125,45 +113,64 @@ namespace DiceCalculator
                 {
                     sum *= -1;
                 }
-                return sum;
-            });
+                if (dieTotalsAndCount.ContainsKey(sum))
+                {
+                    dieTotalsAndCount[sum]++;
+                }
+                else
+                {
+                    dieTotalsAndCount.Add(sum, 1);
+                }
+            }
+            return dieTotalsAndCount;
         }
 
-        private static void AddPartialMatrixToFullMatrix(ref List<int> summedMatrix, IEnumerable<int> dieSumMatrix)
+        private static void AddPartialMatrixToFullMatrix(ref Dictionary<int, int> fullTotalsAndCount,
+            Dictionary<int, int> dieTotalsAndCount)
         {
-            if (summedMatrix.Count == 0)
+            if (fullTotalsAndCount.Count == 0)
             {
-                summedMatrix.AddRange(dieSumMatrix);
+                fullTotalsAndCount = dieTotalsAndCount;
             }
             else
             {
-                var tempSummedMatrix = new List<int>();
-                foreach (var item in summedMatrix)
+                var temp = new Dictionary<int, int>();
+                foreach (var kvp in fullTotalsAndCount)
                 {
-                    foreach (var item2 in dieSumMatrix)
+                    foreach (var kvp2 in dieTotalsAndCount)
                     {
-                        tempSummedMatrix.Add(item + item2);
+                        var newKey = kvp.Key + kvp2.Key;
+                        var addedValue = kvp.Value * kvp2.Value;
+                        if (temp.ContainsKey(newKey))
+                        {
+                            temp[newKey] += addedValue;
+                        }
+                        else
+                        {
+                            temp.Add(newKey, addedValue);
+                        }
                     }
                 }
-                summedMatrix = tempSummedMatrix;
+                fullTotalsAndCount = temp;
             }
         }
-        
-        private static IDictionary<int, Calculations> DoMinMaxCalculations(IList<int> summedMatrix, DiceRoll diceRoll)
+
+        private static IDictionary<int, Calculations> DoMinMaxCalculations(IDictionary<int, int> summedMatrix,
+            DiceRoll diceRoll)
         {
             var calcs = new Dictionary<int, Calculations>();
 
             // calculate frequency of each dice num
-            foreach (var num in summedMatrix)
+            foreach (var kvp in summedMatrix)
             {
-                var key = (int)AddModifiers(num, diceRoll.Modifiers);
+                var key = (int)AddModifiers(kvp.Key, diceRoll.Modifiers);
                 if (calcs.ContainsKey(key))
                 {
-                    calcs[key].Frequency++;
+                    calcs[key].Frequency += kvp.Value;
                 }
                 else
                 {
-                    calcs.Add(key, new Calculations(1, 0));
+                    calcs.Add(key, new Calculations(kvp.Value, 0));
                 }
             }
 
@@ -205,7 +212,7 @@ namespace DiceCalculator
             }
             return num;
         }
-                
+
         private static readonly int[] diceTypes = new int[] { 4, 6, 8, 10, 12, 20, 100 };
         public static DiceRoll CalculateMinMax(MinMax minMax)
         {
