@@ -10,7 +10,7 @@ namespace DiceCalculator
         {
             var rolls = GetDiceRolls(diceRoll.Dice, seed);
             var rollBeforeMods = AddRolls(rolls);
-            var roll = AddModifiers(rollBeforeMods, diceRoll.Modifiers);
+            var roll = Helpers.AddModifiers(rollBeforeMods, diceRoll.Modifiers);
             return roll;
         }
 
@@ -20,30 +20,18 @@ namespace DiceCalculator
             var rolls = new List<int>();
             foreach (var die in dice)
             {
-                var dieRolls = new List<int>();
+                var dieRolls = new int[die.NumDice];
                 for (int i = 0; i < die.NumDice; i++)
                 {
                     var num = randomizer.Next(1, die.NumDieFaces + 1);
-                    dieRolls.Add(num);
+                    dieRolls[i] = num;
                 }
 
-                if (Helpers.NeedToDropDice(die))
-                {
-                    dieRolls.Sort();
-                    var amtToRemove = die.NumDice - die.NumDiceToKeep;
-                    if (die.KeepHigh)
-                    {
-                        dieRolls.RemoveRange(0, amtToRemove);
-                    }
-                    else
-                    {
-                        dieRolls.RemoveRange(die.NumDiceToKeep, amtToRemove);
-                    }
-                }
+                dieRolls = Helpers.DropNonKeepDice(die, dieRolls);
 
                 if (die.Operation == Operation.Subtract)
                 {
-                    dieRolls = dieRolls.Select(r => r * -1).ToList();
+                    dieRolls = dieRolls.Select(r => r * -1).ToArray();
                 }
                 rolls.AddRange(dieRolls);
             }
@@ -57,32 +45,6 @@ namespace DiceCalculator
             foreach (var r in rolls)
             {
                 roll += r;
-            }
-            return roll;
-        }
-
-        private static int AddModifiers(int roll, IEnumerable<Modifier> modifiers)
-        {
-            // TODO: merge with Calculator.AddModifiers
-            foreach (var mod in modifiers)
-            {
-                switch (mod.Operation)
-                {
-                    case Operation.Add:
-                        roll += mod.Number;
-                        break;
-                    case "-":
-                        roll -= mod.Number;
-                        break;
-                    case "*":
-                        roll *= mod.Number;
-                        break;
-                    case "/":
-                        roll /= mod.Number;
-                        break;
-                    default:
-                        break;
-                }
             }
             return roll;
         }

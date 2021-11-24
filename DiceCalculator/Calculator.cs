@@ -80,7 +80,7 @@ namespace DiceCalculator
         {
             if (diceIndex >= die.NumDice)
             {
-                var remainingSortedDice = DropNonKeepDice(die, colList.ToArray());
+                var remainingSortedDice = Helpers.DropNonKeepDice(die, colList.ToArray());
                 matrix.Add(remainingSortedDice);
                 diceIndex--;
                 colList[diceIndex] = 0;
@@ -98,20 +98,6 @@ namespace DiceCalculator
                 diceIndex--;
                 colList[diceIndex] = 0;
             }
-        }
-
-        private static int[] DropNonKeepDice(Die die, int[] dieRolls)
-        {
-            // TODO: merge with similar section in DiceRoller.GetDiceRolls
-            // TODO: don't need if statement if only calling this method when kh/kl is involved
-            if (Helpers.NeedToDropDice(die))
-            {
-                Array.Sort(dieRolls);
-                dieRolls = die.KeepHigh
-                    ? dieRolls.TakeLast(die.NumDiceToKeep).ToArray()
-                    : dieRolls.Take(die.NumDiceToKeep).ToArray();
-            }
-            return dieRolls;
         }
 
         private static Dictionary<int, long> AddUpPermutations(IList<int[]> permutations, Die die)
@@ -228,37 +214,12 @@ namespace DiceCalculator
             var calcs = new List<Calculations>();
             foreach (var kvp in summedMatrix)
             {
-                int key = AddModifiers(kvp.Key, diceRoll.Modifiers);
+                int key = Helpers.AddModifiers(kvp.Key, diceRoll.Modifiers);
                 calcs.Add(new Calculations(key, kvp.Value, 0));
             }
 
             calcs = calcs.OrderBy(calc => calc.Value).ToList();
             return calcs;
-        }
-
-        private static int AddModifiers(float num, IEnumerable<Modifier> modifiers)
-        {
-            foreach (var mod in modifiers)
-            {
-                switch (mod.Operation)
-                {
-                    case Operation.Add:
-                        num += mod.Number;
-                        break;
-                    case "-":
-                        num -= mod.Number;
-                        break;
-                    case "*":
-                        num *= mod.Number;
-                        break;
-                    case "/":
-                        num /= mod.Number;
-                        break;
-                    default:
-                        break;
-                }
-            }
-            return (int)num;
         }
 
         private static IList<Calculations> CalculatePercentages(IList<Calculations> calcs)
