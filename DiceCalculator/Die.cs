@@ -1,5 +1,6 @@
 ﻿namespace DiceCalculator
 {
+    // TODO: this should really be called DiceRoll
     public class Die
     {
         public Die(int numberOfDice, int numberOfDieFaces, string operation)

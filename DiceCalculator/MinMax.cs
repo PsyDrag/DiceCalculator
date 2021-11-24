@@ -22,11 +22,11 @@ namespace DiceCalculator
     [DebuggerDisplay("Value: {Value}, Freq: {Frequency}, Pct: {Percentage}")]
     public class Calculations
     {
-        public Calculations(int value, int freq, float pct)
+        public Calculations(int value, long freq, float pct)
             => (Value, Frequency, Percentage) = (value, freq, pct);
 
         public int Value{ get; internal set; }
-        public int Frequency { get; internal set; }
+        public long Frequency { get; internal set; }
         public float Percentage { get; internal set; }
     }
 }

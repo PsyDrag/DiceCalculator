@@ -2,6 +2,7 @@
 
 namespace DiceCalculator
 {
+    // TODO: this should really be called something else and contain an enumerable of dicerolls
     public class DiceRoll
     {
         public DiceRoll(IEnumerable<Die> dice, IEnumerable<Modifier> modifiers)

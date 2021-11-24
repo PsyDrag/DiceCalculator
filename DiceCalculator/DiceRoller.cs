@@ -27,7 +27,7 @@ namespace DiceCalculator
                     dieRolls.Add(num);
                 }
 
-                if (die.NumDiceToKeep != 0 && die.NumDiceToKeep < die.NumDice)
+                if (Helpers.NeedToDropDice(die))
                 {
                     dieRolls.Sort();
                     var amtToRemove = die.NumDice - die.NumDiceToKeep;

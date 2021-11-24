@@ -16,13 +16,22 @@ namespace DiceCalculator
             // check if any dice rolls are too large to be calculated in a reasonable amount of time
             foreach (var die in diceRoll.Dice)
             {
-                if (Math.Pow(die.NumDieFaces, die.NumDice) > 70000000) // used to be int.MAX
+                // used to be int.MaxValue (~2.14mil)
+                if (Helpers.NeedToDropDice(die) && Math.Pow(die.NumDieFaces, die.NumDice) > 70000000)
                 {
                     return new MinMax(0, 0, 0);
                 }
             }
 
-            var calcs = CalculateMinAndMaxValues(diceRoll);
+            IList<Calculations> calcs;
+            try
+            {
+                calcs = CalculateMinAndMaxValues(diceRoll);
+            }
+            catch (OverflowException)
+            {
+                return new MinMax(0, 0, 0);
+            }
             int min = calcs.First().Value;
             int max = calcs.Last().Value;
 
@@ -44,15 +53,23 @@ namespace DiceCalculator
 
         private static IList<Calculations> CalculateMinAndMaxValues(DiceRoll diceRoll)
         {
-            var diceRollTotalsAndCount = new Dictionary<int, int>();
+            var diceRollTotalsAndCount = new Dictionary<int, long>();
             foreach (var die in diceRoll.Dice)
             {
-                var permutations = new List<int[]>();
-                int diceIndex = 0;
-                CalculateRecursively(die, permutations, ref diceIndex, colList: new int[die.NumDice]);
+                if (Helpers.NeedToDropDice(die))
+                {
+                    var permutations = new List<int[]>();
+                    int diceIndex = 0;
+                    CalculateRecursively(die, permutations, ref diceIndex, colList: new int[die.NumDice]);
 
-                var dieTotalsAndCount = AddUpPermutations(permutations, die);
-                AddDieTotalsToDiceRollTotals(ref diceRollTotalsAndCount, dieTotalsAndCount);
+                    var dieTotalsAndCount = AddUpPermutations(permutations, die);
+                    AddDieTotalsToDiceRollTotals(ref diceRollTotalsAndCount, dieTotalsAndCount); 
+                }
+                else
+                {
+                    var dieTotalsAndCount = GetDieTotalsAndCount(die);
+                    AddDieTotalsToDiceRollTotals(ref diceRollTotalsAndCount, dieTotalsAndCount);
+                }
             }
 
             var initalCalcs = AddModifiers(diceRollTotalsAndCount, diceRoll);
@@ -85,8 +102,9 @@ namespace DiceCalculator
 
         private static int[] DropNonKeepDice(Die die, int[] dieRolls)
         {
-            // TODO: merge with DiceRoller.GetDiceRolls
-            if (die.NumDiceToKeep != 0 && die.NumDiceToKeep < die.NumDice)
+            // TODO: merge with similar section in DiceRoller.GetDiceRolls
+            // TODO: don't need if statement if only calling this method when kh/kl is involved
+            if (Helpers.NeedToDropDice(die))
             {
                 Array.Sort(dieRolls);
                 dieRolls = die.KeepHigh
@@ -96,11 +114,11 @@ namespace DiceCalculator
             return dieRolls;
         }
 
-        private static Dictionary<int, int> AddUpPermutations(IList<int[]> permutations, Die die)
+        private static Dictionary<int, long> AddUpPermutations(IList<int[]> permutations, Die die)
         {
             // add all nums of each permutation,
             // turning it negative if the die operation is subtract
-            var dieTotalsAndCount = new Dictionary<int, int>();
+            var dieTotalsAndCount = new Dictionary<int, long>();
             foreach (var list in permutations)
             {
                 int sum = 0;
@@ -125,8 +143,8 @@ namespace DiceCalculator
             return dieTotalsAndCount;
         }
 
-        private static void AddDieTotalsToDiceRollTotals(ref Dictionary<int, int> diceRollTotalsAndCount,
-            Dictionary<int, int> dieTotalsAndCount)
+        private static void AddDieTotalsToDiceRollTotals(ref Dictionary<int, long> diceRollTotalsAndCount,
+            Dictionary<int, long> dieTotalsAndCount)
         {
             if (diceRollTotalsAndCount.Count == 0)
             {
@@ -134,13 +152,13 @@ namespace DiceCalculator
             }
             else
             {
-                var tempTotalsAndCount = new Dictionary<int, int>();
+                var tempTotalsAndCount = new Dictionary<int, long>();
                 foreach (var currentDieTotal in diceRollTotalsAndCount)
                 {
                     foreach (var dieTotal in dieTotalsAndCount)
                     {
                         int newTotal = currentDieTotal.Key + dieTotal.Key;
-                        int newCount = currentDieTotal.Value * dieTotal.Value;
+                        long newCount = currentDieTotal.Value * dieTotal.Value;
                         if (tempTotalsAndCount.ContainsKey(newTotal))
                         {
                             tempTotalsAndCount[newTotal] += newCount;
@@ -155,7 +173,57 @@ namespace DiceCalculator
             }
         }
 
-        private static IList<Calculations> AddModifiers(IDictionary<int, int> summedMatrix, DiceRoll diceRoll)
+        private static Dictionary<int, long> GetDieTotalsAndCount(Die die)
+        {
+            var totalsAndCount = new Dictionary<int, long>();
+
+            // formula taken from https://www.omnicalculator.com/statistics/dice#how-to-calculate-dice-roll-probability
+            // it's essentially a multiset - https://qr.ae/pGmpoz
+            int n = die.NumDice;
+            int s = die.NumDieFaces;
+            int min = n;
+            int max = n * s;
+            for (int r = min; r <= max; r++)
+            {
+                int rTotal = r;
+                long rCount = 0;
+                // this is the same as flooring a double
+                int summationLimit = (r - n) / s;
+                for (int k = 0; k <= summationLimit; k++)
+                {
+                    int part1 = (int)Math.Pow(-1, k);
+                    long part2 = BinomialCoefficient(n, k);
+                    long part3 = BinomialCoefficient(r - (s * k) - 1, n - 1);
+                    long part = part1 * part2 * part3;
+                    rCount += part;
+                }
+                if (rCount < 0)
+                {
+                    throw new OverflowException();
+                }
+                if (die.Operation == Operation.Subtract)
+                {
+                    rTotal *= -1;
+                }
+                totalsAndCount.Add(rTotal, rCount);
+            }
+
+            return totalsAndCount;
+        }
+
+        // from https://math.stackexchange.com/a/927064
+        private static long BinomialCoefficient(int n, int k)
+        {
+            if (k > n)
+                return 0;
+            if (k == 0 || k == n)
+                return 1;
+            if (k > n / 2)
+                return BinomialCoefficient(n, n - k);
+            return n * BinomialCoefficient(n - 1, k - 1) / k;
+        }
+
+        private static IList<Calculations> AddModifiers(IDictionary<int, long> summedMatrix, DiceRoll diceRoll)
         {
             var calcs = new List<Calculations>();
             foreach (var kvp in summedMatrix)
@@ -195,7 +263,9 @@ namespace DiceCalculator
 
         private static IList<Calculations> CalculatePercentages(IList<Calculations> calcs)
         {
-            int totalNums = calcs.Sum(v => v.Frequency);
+            //totalNums should just be NumDieFaces ^ NumDice
+            //or if NumDiceToKeep, NumDieFaces ^ NumDiceToKeep
+            long totalNums = calcs.Sum(v => v.Frequency);
             foreach (var calc in calcs)
             {
                 float pct = (calc.Frequency * 100f) / totalNums;
