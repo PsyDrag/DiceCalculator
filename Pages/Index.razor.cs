@@ -10,6 +10,8 @@ namespace WasmDiceCalculator.Pages
         private int? rollOutput = null;
         private bool useRollOutput = false;
         private DiceRoll minMaxOutput = null;
+        private string graphButtonText = "Show Graph";
+        private bool shouldShowGraph = false;
 
         private void CalculateDiceRoll()
         {
@@ -29,6 +31,12 @@ namespace WasmDiceCalculator.Pages
         {
             var mm = Parser.ParseMinMax(minMaxInput);
             minMaxOutput = Calculator.CalculateMinMax(mm);
+        }
+
+        private void OnGraphButtonClick()
+        {
+            shouldShowGraph = !shouldShowGraph;
+            graphButtonText = shouldShowGraph ? "Hide Graph" : "Show Graph";
         }
     }
 }

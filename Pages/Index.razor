@@ -38,6 +38,9 @@
                             <p>Avg: @diceRollOutput.Avg</p>
                             <p>Max: @diceRollOutput.Max</p>
                         </div>
+                        <div class="row" style="margin-top:10px; justify-content: space-evenly">
+                            <button class="btn btn-secondary" @onclick="OnGraphButtonClick">@graphButtonText</button>
+                        </div>
                     }
                     else
                     {
@@ -45,7 +48,7 @@
                     }
                 }
 
-                @if (!useRollOutput && diceRollOutput != null && diceRollOutput.MinMaxCalcs != null)
+                @if (!useRollOutput && diceRollOutput != null && diceRollOutput.MinMaxCalcs != null && shouldShowGraph)
                 {
                     <table class="row" style="margin:10px 0px 20px 0px; justify-content: space-evenly">
                         <tbody style="width:300px; padding:10px; border:solid 1px black">
