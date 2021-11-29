@@ -13,20 +13,69 @@
     <EditForm Model="@exampleModel">
         <div class="row">
             <div class="col"></div>
-            <div class="col-auto">
+            <div class="col-5">
                 <div class="row">
-                    <h5 class="col" style="text-align: center;">Dice Roll</h5>
+                    <h5 class="col text-center">Dice Roll</h5>
                 </div>
                 <div class="row">
-                    <InputText class="col-12 col-md-auto" @bind-Value="diceRollInput" />
+                    <InputText class="col-12 col-md-auto" style="flex-grow:2" @bind-Value="diceRollInput" />
                     <button class="btn btn-primary col-12 col-md-auto" @onclick="CalculateDiceRoll">Calculate</button>
                     <button class="btn btn-secondary col-12 col-md-auto" @onclick="RollDice">Roll</button>
                 </div>
 
                 @if (useRollOutput && rollOutput != null)
                 {
-                    <div class="row" style="margin-top:10px; justify-content: space-evenly">
-                        <p>Rolled: @rollOutput</p>
+                    foreach (var drt in rollOutput.Item1)
+                    {
+                        <div class="row" style="margin-top:10px; border-bottom:1px solid black; justify-content:space-between">
+                            <div class="col" style="padding:0">
+                                <p style="margin-bottom:0">
+                                    @foreach (var roll in drt.DieRolls)
+                                    {
+                                        var style = "padding:1px 5px;";
+                                        if ((roll.Item2 & DieRollOutput.Dropped) == DieRollOutput.Dropped)
+                                        {
+                                            style += "opacity:0.4;";
+                                        }
+                                        if ((roll.Item2 & DieRollOutput.CritFailure) == DieRollOutput.CritFailure)
+                                        {
+                                            style += "background-color:lightcoral; color:red;";
+                                        }
+                                        else if ((roll.Item2 & DieRollOutput.CritSuccess) == DieRollOutput.CritSuccess)
+                                        {
+                                            style += "background-color:lightgreen; color:green;";
+                                        }
+                                        else
+                                        {
+                                            style += "background-color:lightgray;";
+                                        }
+                                        <span style=@style>@roll.Item1</span>
+                                    }
+                                </p>
+                            </div>
+                            <div class="col-auto" style="padding-right:0; align-self:flex-end">
+                                <p style="border:1px solid black; padding:0px 5px; border-bottom:0; border-top-left-radius:5px; margin-bottom:0">@drt.DieRollSum</p>
+                            </div>
+                        </div>
+                    }
+                    <div class="row" style="margin-top:10px; justify-content:space-evenly">
+                        <p style="border:1px solid black; padding:0px 5px; width:100%; text-align:center">
+                            @if (rollOutput.Item1.Length == 1)
+                            {
+                                <span style="padding:1px 3px; background-color:lightgray">@rollOutput.Item2</span>
+                            }
+                            else
+                            {
+                                <span>@rollOutput.Item1[0].DieRollSum</span>
+                                for (var i = 1; i < rollOutput.Item1.Length; i++)
+                                {
+                                    var drt = rollOutput.Item1[i];
+                                    <span>@drt.Operation @drt.DieRollSum</span>
+                                }
+                                <span>=</span>
+                                <span style="padding:1px 3px; background-color:lightgray">@rollOutput.Item2</span>
+                            }
+                        </p>
                     </div>
                 }
                 else if (diceRollOutput != null)
@@ -71,12 +120,12 @@
                 }
             </div>
             <div class="col-1"></div>
-            <div class="col-auto">
+            <div class="col-5">
                 <div class="row">
-                    <h5 class="col" style="text-align: center;">Min Max</h5>
+                    <h5 class="col text-center">Min Max</h5>
                 </div>
                 <div class="row">
-                    <InputText class="col-12 col-md-auto" @bind-Value="minMaxInput" />
+                    <InputText class="col-12 col-md-auto" style="flex-grow:2" @bind-Value="minMaxInput" />
                     <button class="btn btn-primary col-12 col-md-auto" @onclick="CalculateMinMax">Calculate</button>
                 </div>
                 <div class="row" style="margin-top:10px; justify-content: center">

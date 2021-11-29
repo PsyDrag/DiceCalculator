@@ -1,4 +1,5 @@
-﻿using DiceCalculator;
+﻿using System;
+using DiceCalculator;
 
 namespace WasmDiceCalculator.Pages
 {
@@ -7,7 +8,7 @@ namespace WasmDiceCalculator.Pages
         private string diceRollInput = "3d6";
         private string minMaxInput = "min:1 max:20";
         private MinMax diceRollOutput = null;
-        private int? rollOutput = null;
+        private Tuple<DieRollThingy[], int> rollOutput = null;
         private bool useRollOutput = false;
         private DiceRoll minMaxOutput = null;
         private string graphButtonText = "Show Graph";
