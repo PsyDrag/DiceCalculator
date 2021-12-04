@@ -29,7 +29,7 @@ namespace DiceCalculator
                 var modifiers = new List<Modifier>();
                 bool shouldLookBack = false;
                 var components = line.Split(' ');
-                for (var i = 0; i < components.Length; i++)
+                for (int i = 0; i < components.Length; i++)
                 {
                     if (components[i].Contains('d'))
                     {
@@ -45,7 +45,7 @@ namespace DiceCalculator
                             var keepNums = die[1].Split('k');
                             type = int.Parse(keepNums[0]);
 
-                            var keepAmt = int.Parse(keepNums[1][1..]);
+                            int keepAmt = int.Parse(keepNums[1][1..]);
                             keep = keepAmt > amt ? amt : keepAmt;
                             keepHigh = keepNums[1][0] == 'h';
                         }
@@ -56,7 +56,7 @@ namespace DiceCalculator
 
                         if (shouldLookBack)
                         {
-                            var lookBackOp = components[i - 1];
+                            string lookBackOp = components[i - 1];
                             diceOp = lookBackOp switch
                             {
                                 Operation.Add      => Operation.Add,
@@ -79,9 +79,16 @@ namespace DiceCalculator
                     }
                     else if (components[i] == "+" || components[i] == "-" || components[i] == "*" || components[i] == "/")
                     {
-                        var num = int.Parse(components[i + 1]);
-                        modifiers.Add(new Modifier(components[i], num));
-                        i++;
+                        int.TryParse(components[i + 1], out int num);
+                        if (num != 0)
+                        {
+                            modifiers.Add(new Modifier(components[i], num));
+                            i++; 
+                        }
+                    }
+                    else if (int.TryParse(components[i], out int num))
+                    {
+                        modifiers.Add(new Modifier(Operation.Add, num));
                     }
                 }
 

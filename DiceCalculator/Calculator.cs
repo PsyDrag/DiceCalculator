@@ -8,7 +8,8 @@ namespace DiceCalculator
     {
         public static MinMax CalculateDiceRoll(DiceRoll diceRoll)
         {
-            if (diceRoll.Dice == null || diceRoll.Modifiers == null)
+            if (diceRoll.Dice == null || diceRoll.Modifiers == null
+                || (diceRoll.Dice.Count() == 0 && diceRoll.Modifiers.Count() == 0))
             {
                 return new MinMax(0, 0, 0);
             }
@@ -72,7 +73,7 @@ namespace DiceCalculator
                 }
             }
 
-            var initalCalcs = AddModifiers(diceRollTotalsAndCount, diceRoll);
+            var initalCalcs = AddModifiers(diceRollTotalsAndCount, diceRoll.Modifiers);
             return CalculatePercentages(initalCalcs);
         }
 
@@ -209,12 +210,18 @@ namespace DiceCalculator
             return n * BinomialCoefficient(n - 1, k - 1) / k;
         }
 
-        private static IList<Calculations> AddModifiers(IDictionary<int, long> summedMatrix, DiceRoll diceRoll)
+        private static IList<Calculations> AddModifiers(IDictionary<int, long> summedMatrix,
+            IEnumerable<Modifier> modifiers)
         {
             var calcs = new List<Calculations>();
+            if (summedMatrix.Count == 0)
+            {
+                int key = Helpers.AddModifiers(0, modifiers);
+                calcs.Add(new Calculations(key, 1, 0));
+            }
             foreach (var kvp in summedMatrix)
             {
-                int key = Helpers.AddModifiers(kvp.Key, diceRoll.Modifiers);
+                int key = Helpers.AddModifiers(kvp.Key, modifiers);
                 calcs.Add(new Calculations(key, kvp.Value, 0));
             }
 
