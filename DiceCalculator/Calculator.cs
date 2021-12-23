@@ -6,19 +6,19 @@ namespace DiceCalculator
 {
     public static class Calculator
     {
-        public static MinMax CalculateDiceRoll(DiceRoll diceRoll)
+        public static MinMax CalculateDiceExpression(DiceExpression diceExpression)
         {
-            if (diceRoll.Dice == null || diceRoll.Modifiers == null
-                || (diceRoll.Dice.Count() == 0 && diceRoll.Modifiers.Count() == 0))
+            if (diceExpression.DiceRolls == null || diceExpression.Modifiers == null
+                || (diceExpression.DiceRolls.Count() == 0 && diceExpression.Modifiers.Count() == 0))
             {
                 return new MinMax(0, 0, 0);
             }
 
             // check if any dice rolls are too large to be calculated in a reasonable amount of time
-            foreach (var die in diceRoll.Dice)
+            foreach (var diceRoll in diceExpression.DiceRolls)
             {
                 // used to be int.MaxValue (~2.14mil)
-                if (Helpers.NeedToDropDice(die) && Math.Pow(die.NumDieFaces, die.NumDice) > 70000000)
+                if (Helpers.NeedToDropDice(diceRoll) && Math.Pow(diceRoll.NumDieFaces, diceRoll.NumDice) > 70000000)
                 {
                     return new MinMax(0, 0, 0);
                 }
@@ -27,19 +27,19 @@ namespace DiceCalculator
             IList<Calculations> calcs;
             try
             {
-                calcs = CalculateMinAndMaxValues(diceRoll);
+                calcs = CalculateMinAndMaxValues(diceExpression);
             }
             catch (OverflowException)
             {
                 return new MinMax(0, 0, 0);
             }
-            int min = calcs.First().Value;
-            int max = calcs.Last().Value;
+            int min = calcs.First().Count;
+            int max = calcs.Last().Count;
 
             float tempAvg = 0f;
             foreach (var calc in calcs)
             {
-                tempAvg += calc.Value * calc.Percentage;
+                tempAvg += calc.Count * calc.Percentage;
             }
             var avg = (float)Math.Round(tempAvg / 100, 3);
 
@@ -52,47 +52,47 @@ namespace DiceCalculator
             return new MinMax(min, avg, max, calcs);
         }
 
-        private static IList<Calculations> CalculateMinAndMaxValues(DiceRoll diceRoll)
+        private static IList<Calculations> CalculateMinAndMaxValues(DiceExpression diceExpression)
         {
             var diceRollTotalsAndCount = new Dictionary<int, long>();
-            foreach (var die in diceRoll.Dice)
+            foreach (var diceRoll in diceExpression.DiceRolls)
             {
-                if (Helpers.NeedToDropDice(die))
+                if (Helpers.NeedToDropDice(diceRoll))
                 {
                     var permutations = new List<int[]>();
                     int diceIndex = 0;
-                    CalculateRecursively(die, permutations, ref diceIndex, colList: new int[die.NumDice]);
+                    CalculateRecursively(diceRoll, permutations, ref diceIndex, colList: new int[diceRoll.NumDice]);
 
-                    var dieTotalsAndCount = AddUpPermutations(permutations, die);
+                    var dieTotalsAndCount = AddUpPermutations(permutations, diceRoll);
                     AddDieTotalsToDiceRollTotals(ref diceRollTotalsAndCount, dieTotalsAndCount); 
                 }
                 else
                 {
-                    var dieTotalsAndCount = GetDieTotalsAndCount(die);
+                    var dieTotalsAndCount = GetDieTotalsAndCount(diceRoll);
                     AddDieTotalsToDiceRollTotals(ref diceRollTotalsAndCount, dieTotalsAndCount);
                 }
             }
 
-            var initalCalcs = AddModifiers(diceRollTotalsAndCount, diceRoll.Modifiers);
+            var initalCalcs = AddModifiers(diceRollTotalsAndCount, diceExpression.Modifiers);
             return CalculatePercentages(initalCalcs);
         }
 
-        private static void CalculateRecursively(Die die, IList<int[]> matrix, ref int diceIndex, int[] colList)
+        private static void CalculateRecursively(DiceRoll diceRoll, IList<int[]> matrix, ref int diceIndex, int[] colList)
         {
-            if (diceIndex >= die.NumDice)
+            if (diceIndex >= diceRoll.NumDice)
             {
-                var remainingSortedDice = Helpers.DropNonKeepDice(die, colList.ToArray());
+                var remainingSortedDice = Helpers.DropNonKeepDice(diceRoll, colList.ToArray());
                 matrix.Add(remainingSortedDice);
                 diceIndex--;
                 colList[diceIndex] = 0;
                 return;
             }
 
-            for (int i = 1; i <= die.NumDieFaces; i++)
+            for (int i = 1; i <= diceRoll.NumDieFaces; i++)
             {
                 colList[diceIndex] = i;
                 diceIndex++;
-                CalculateRecursively(die, matrix, ref diceIndex, colList);
+                CalculateRecursively(diceRoll, matrix, ref diceIndex, colList);
             }
             if (diceIndex > 0)
             {
@@ -101,7 +101,7 @@ namespace DiceCalculator
             }
         }
 
-        private static Dictionary<int, long> AddUpPermutations(IList<int[]> permutations, Die die)
+        private static Dictionary<int, long> AddUpPermutations(IList<int[]> permutations, DiceRoll diceRoll)
         {
             // add all nums of each permutation,
             // turning it negative if the die operation is subtract
@@ -113,7 +113,7 @@ namespace DiceCalculator
                 {
                     sum += num;
                 }
-                if (die.Operation == Operation.Subtract)
+                if (diceRoll.Operation == Operation.Subtract)
                 {
                     sum *= -1;
                 }
@@ -160,14 +160,14 @@ namespace DiceCalculator
             }
         }
 
-        private static Dictionary<int, long> GetDieTotalsAndCount(Die die)
+        private static Dictionary<int, long> GetDieTotalsAndCount(DiceRoll diceRoll)
         {
             var totalsAndCount = new Dictionary<int, long>();
 
             // formula taken from https://www.omnicalculator.com/statistics/dice#how-to-calculate-dice-roll-probability
             // it's essentially a multiset - https://qr.ae/pGmpoz
-            int n = die.NumDice;
-            int s = die.NumDieFaces;
+            int n = diceRoll.NumDice;
+            int s = diceRoll.NumDieFaces;
             int min = n;
             int max = n * s;
             for (int r = min; r <= max; r++)
@@ -188,7 +188,7 @@ namespace DiceCalculator
                 {
                     throw new OverflowException();
                 }
-                if (die.Operation == Operation.Subtract)
+                if (diceRoll.Operation == Operation.Subtract)
                 {
                     rTotal *= -1;
                 }
@@ -216,16 +216,16 @@ namespace DiceCalculator
             var calcs = new List<Calculations>();
             if (summedMatrix.Count == 0)
             {
-                int key = Helpers.AddModifiers(0, modifiers);
-                calcs.Add(new Calculations(key, 1, 0));
+                int count = Helpers.AddModifiers(0, modifiers);
+                calcs.Add(new Calculations(count, 1, 0));
             }
             foreach (var kvp in summedMatrix)
             {
-                int key = Helpers.AddModifiers(kvp.Key, modifiers);
-                calcs.Add(new Calculations(key, kvp.Value, 0));
+                int count = Helpers.AddModifiers(kvp.Key, modifiers);
+                calcs.Add(new Calculations(count, kvp.Value, 0));
             }
 
-            calcs = calcs.OrderBy(calc => calc.Value).ToList();
+            calcs = calcs.OrderBy(calc => calc.Count).ToList();
             return calcs;
         }
 
@@ -243,16 +243,16 @@ namespace DiceCalculator
         }
 
         private static readonly int[] diceTypes = new int[] { 4, 6, 8, 10, 12, 20, 100 };
-        public static DiceRoll CalculateMinMax(MinMax minMax)
+        public static DiceExpression CalculateMinMax(MinMax minMax)
         {
             if (minMax.Avg != 0.0)
             {
-                return new DiceRoll(null, null);
+                return new DiceExpression(null, null);
             }
 
             if (minMax.Min == 1)
             {
-                return new DiceRoll(new[] { new Die(1, minMax.Max, Operation.Add) }, new[] { new Modifier("+", 0) });
+                return new DiceExpression(new[] { new DiceRoll(1, minMax.Max, Operation.Add) }, new[] { new Modifier("+", 0) });
             }
 
             int numberOfDice;
@@ -266,14 +266,14 @@ namespace DiceCalculator
                 {
                     numberOfDice = i;
                     numberOfDieFaces = newMax / i;
-                    return new DiceRoll(new[] { new Die(numberOfDice, numberOfDieFaces, Operation.Add) }, new[] { new Modifier("+", mod) });
+                    return new DiceExpression(new[] { new DiceRoll(numberOfDice, numberOfDieFaces, Operation.Add) }, new[] { new Modifier("+", mod) });
                 }
             }
 
             numberOfDice = 1;
             mod = minMax.Min - 1;
             numberOfDieFaces = minMax.Max - mod;
-            return new DiceRoll(new[] { new Die(numberOfDice, numberOfDieFaces, Operation.Add) }, new[] { new Modifier("+", mod) });
+            return new DiceExpression(new[] { new DiceRoll(numberOfDice, numberOfDieFaces, Operation.Add) }, new[] { new Modifier("+", mod) });
         }
     }
 }

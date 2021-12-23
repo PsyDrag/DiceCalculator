@@ -2,8 +2,8 @@
 {
     public static class Constants
     {
-        public static readonly string DiceRollExamples =
-            "Dice Roll Examples:\n" +
+        public static readonly string DiceExpressionExamples =
+            "Dice Expression Examples:\n" +
             "  1d4 + 7                standard roll plus modifier\n" +
             "  3d6                    no modifier\n" +
             "  d20                    straight up\n" +

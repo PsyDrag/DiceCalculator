@@ -4,13 +4,13 @@ namespace DiceCalculator
 {
     public static class Parser
     {
-        public static DiceRoll ParseDiceRoll(string line)
+        public static DiceExpression ParseDiceExpression(string line)
         {
             line = line.ToLower();
 
             if (line.Contains("ac") || line.Contains("dc"))
             {
-                return new DiceRoll(null, null);
+                return new DiceExpression(null, null);
             }
             else
             {
@@ -25,7 +25,7 @@ namespace DiceCalculator
                     }
                 }
 
-                var dice = new List<Die>();
+                var diceRolls = new List<DiceRoll>();
                 var modifiers = new List<Modifier>();
                 bool shouldLookBack = false;
                 var components = line.Split(' ');
@@ -33,16 +33,16 @@ namespace DiceCalculator
                 {
                     if (components[i].Contains('d'))
                     {
-                        var die = components[i].Split('d');
-                        int amt = die[0] == string.Empty ? 1 : int.Parse(die[0]);
+                        var diceRoll = components[i].Split('d');
+                        int amt = diceRoll[0] == string.Empty ? 1 : int.Parse(diceRoll[0]);
                         int type = 0;
                         int keep = 0;
                         bool keepHigh = false;
                         string diceOp;
 
-                        if (die[1].Contains('k'))
+                        if (diceRoll[1].Contains('k'))
                         {
-                            var keepNums = die[1].Split('k');
+                            var keepNums = diceRoll[1].Split('k');
                             type = int.Parse(keepNums[0]);
 
                             int keepAmt = int.Parse(keepNums[1][1..]);
@@ -51,7 +51,7 @@ namespace DiceCalculator
                         }
                         else
                         {
-                            type = int.Parse(die[1]);
+                            type = int.Parse(diceRoll[1]);
                         }
 
                         if (shouldLookBack)
@@ -70,7 +70,7 @@ namespace DiceCalculator
                         {
                             diceOp = Operation.Add;
                         }
-                        dice.Add(new Die(amt, type, keepHigh, keep, diceOp));
+                        diceRolls.Add(new DiceRoll(amt, type, keepHigh, keep, diceOp));
                         shouldLookBack = false;
                     }
                     else if ((components[i] == "+" || components[i] == "-") && components[i+1].Contains('d'))
@@ -92,7 +92,7 @@ namespace DiceCalculator
                     }
                 }
 
-                return new DiceRoll(dice, modifiers);
+                return new DiceExpression(diceRolls, modifiers);
             }
         }
 
@@ -115,18 +115,18 @@ namespace DiceCalculator
             var parts = line.Split(' ');
             foreach (var part in parts)
             {
-                var asdf = part.Split(':');
-                if (asdf[0] == "min")
+                var pieces = part.Split(':');
+                if (pieces[0] == "min")
                 {
-                    min = int.Parse(asdf[1]);
+                    min = int.Parse(pieces[1]);
                 }
-                if (asdf[0] == "avg")
+                if (pieces[0] == "avg")
                 {
-                    avg = float.Parse(asdf[1]);
+                    avg = float.Parse(pieces[1]);
                 }
-                if (asdf[0] == "max")
+                if (pieces[0] == "max")
                 {
-                    max = int.Parse(asdf[1]);
+                    max = int.Parse(pieces[1]);
                 }
             }
 

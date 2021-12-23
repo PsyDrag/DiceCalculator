@@ -8,19 +8,19 @@ namespace DiceCalculator
     {
         // TODO: should probably have this be an extension method.
         // or in ctor should set NumDiceToKeep to NumDice where needed.
-        public static bool NeedToDropDice(Die die)
+        public static bool NeedToDropDice(DiceRoll diceRoll)
         {
-            return die.NumDiceToKeep != 0 && die.NumDiceToKeep < die.NumDice;
+            return diceRoll.NumDiceToKeep != 0 && diceRoll.NumDiceToKeep < diceRoll.NumDice;
         }
 
-        public static int[] DropNonKeepDice(Die die, int[] dieRolls)
+        public static int[] DropNonKeepDice(DiceRoll diceRoll, int[] dieRolls)
         {
-            if (NeedToDropDice(die))
+            if (NeedToDropDice(diceRoll))
             {
                 Array.Sort(dieRolls);
-                dieRolls = die.KeepHigh
-                    ? dieRolls.TakeLast(die.NumDiceToKeep).ToArray()
-                    : dieRolls.Take(die.NumDiceToKeep).ToArray();
+                dieRolls = diceRoll.KeepHigh
+                    ? dieRolls.TakeLast(diceRoll.NumDiceToKeep).ToArray()
+                    : dieRolls.Take(diceRoll.NumDiceToKeep).ToArray();
             }
             return dieRolls;
         }

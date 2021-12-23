@@ -1,14 +1,18 @@
-﻿using System.Collections.Generic;
-
-namespace DiceCalculator
+﻿namespace DiceCalculator
 {
-    // TODO: this should really be called something else and contain an enumerable of dicerolls
     public class DiceRoll
     {
-        public DiceRoll(IEnumerable<Die> dice, IEnumerable<Modifier> modifiers)
-            => (Dice, Modifiers) = (dice, modifiers);
+        public DiceRoll(int numberOfDice, int numberOfDieFaces, string operation)
+            => (NumDice, NumDieFaces, Operation) = (numberOfDice, numberOfDieFaces, operation);
 
-        public IEnumerable<Die> Dice { get; set; }
-        public IEnumerable<Modifier> Modifiers { get; set; }
+        public DiceRoll(int numberOfDice, int numberOfDieFaces, bool keepHigh, int numberOfDiceToKeep, string operation)
+            => (NumDice, KeepHigh, NumDiceToKeep, NumDieFaces, Operation)
+            = (numberOfDice, keepHigh, numberOfDiceToKeep, numberOfDieFaces, operation);
+
+        public int NumDice { get; set; }
+        public bool KeepHigh { get; set; }
+        public int NumDiceToKeep { get; set; }
+        public int NumDieFaces { get; set; }
+        public string Operation { get; set; }
     }
 }

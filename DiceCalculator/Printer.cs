@@ -14,13 +14,13 @@ namespace DiceCalculator
                 $"  Max: {result.Max}");
         }
 
-        public static void Print(string line, DiceRoll result)
+        public static void Print(string line, DiceExpression result)
         {
             string separator = new string('-', line.Length);
             Console.WriteLine($"\n  {line}\n  {separator}");
 
-            var die = result.Dice.First();
-            string lineToPrint = $"  {die.NumDice}d{die.NumDieFaces}";
+            var diceRoll = result.DiceRolls.First();
+            string lineToPrint = $"  {diceRoll.NumDice}d{diceRoll.NumDieFaces}";
             var mod = result.Modifiers.First();
             if (mod.Number != 0)
             {
@@ -47,11 +47,11 @@ namespace DiceCalculator
             Console.WriteLine();
         }
 
-        public static void PrintDiceRollExamples()
+        public static void PrintDiceExpressionExamples()
         {
             Console.WriteLine();
             Console.WriteLine();
-            Console.WriteLine(Constants.DiceRollExamples);
+            Console.WriteLine(Constants.DiceExpressionExamples);
             Console.WriteLine();
             Console.WriteLine();
         }

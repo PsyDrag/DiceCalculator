@@ -15,10 +15,10 @@
             <div class="col"></div>
             <div class="col-5">
                 <div class="row">
-                    <h5 class="col text-center">Dice Roll</h5>
+                    <h5 class="col text-center">Dice Expression</h5>
                 </div>
                 <div class="row">
-                    <InputText class="col-12 col-md-auto" style="flex-grow:2" @bind-Value="diceRollInput" />
+                    <InputText class="col-12 col-md-auto" style="flex-grow:2" @bind-Value="diceExpressionInput" />
                     <button class="btn btn-primary col-12 col-md-auto" @onclick="CalculateDiceRoll">Calculate</button>
                     <button class="btn btn-secondary col-12 col-md-auto" @onclick="RollDice">Roll</button>
                 </div>
@@ -78,14 +78,14 @@
                         </p>
                     </div>
                 }
-                else if (diceRollOutput != null)
+                else if (diceExpressionOutput != null)
                 {
-                    if (diceRollOutput.Min != 0 || diceRollOutput.Avg != 0 || diceRollOutput.Max != 0)
+                    if (diceExpressionOutput.Min != 0 || diceExpressionOutput.Avg != 0 || diceExpressionOutput.Max != 0)
                     {
                         <div class="row" style="margin-top:10px; justify-content: space-evenly">
-                            <p>Min: @diceRollOutput.Min</p>
-                            <p>Avg: @diceRollOutput.Avg</p>
-                            <p>Max: @diceRollOutput.Max</p>
+                            <p>Min: @diceExpressionOutput.Min</p>
+                            <p>Avg: @diceExpressionOutput.Avg</p>
+                            <p>Max: @diceExpressionOutput.Max</p>
                         </div>
                         <div class="row" style="margin-top:10px; justify-content: space-evenly">
                             <button class="btn btn-secondary" @onclick="OnGraphButtonClick">@graphButtonText</button>
@@ -93,18 +93,18 @@
                     }
                     else
                     {
-                        <p style="color: red; width: 300px">Something went wrong. Either something in your input is not yet implemented, or the dice roll is too large to calculate in a decent amount of time.</p>
+                        <p style="color: red">Something went wrong. Either something in your input is not yet implemented, or the dice roll is too large to calculate in a decent amount of time.</p>
                     }
                 }
 
-                @if (!useRollOutput && diceRollOutput != null && diceRollOutput.MinMaxCalcs != null && shouldShowGraph)
+                @if (!useRollOutput && diceExpressionOutput != null && diceExpressionOutput.MinMaxCalcs != null && shouldShowGraph)
                 {
                     <table class="row" style="margin:10px 0px 20px 0px; justify-content: space-evenly">
                         <tbody style="width:300px; padding:10px; border:solid 1px black">
-                            @foreach (var calc in diceRollOutput.MinMaxCalcs)
+                            @foreach (var calc in diceExpressionOutput.MinMaxCalcs)
                             {
                                 <tr style="width:inherit">
-                                    <td align="right">@calc.Value:</td>
+                                    <td align="right">@calc.Count:</td>
                                     <td style="width:inherit">
                                         <div>
                                             <svg width="@calc.Percentage%" height="25px">
@@ -131,11 +131,11 @@
                 <div class="row" style="margin-top:10px; justify-content: center">
                     @if (minMaxOutput != null)
                     {
-                        if (minMaxOutput.Dice != null && minMaxOutput.Modifiers != null)
+                        if (minMaxOutput.DiceRolls != null && minMaxOutput.Modifiers != null)
                         {
-                            @foreach (var die in minMaxOutput.Dice)
+                            @foreach (var dieRoll in minMaxOutput.DiceRolls)
                             {
-                                string formattedDie = die.NumDice + "d" + die.NumDieFaces;
+                                string formattedDie = dieRoll.NumDice + "d" + dieRoll.NumDieFaces;
                                 <p>@formattedDie</p>
                             }
                             @foreach (var mod in minMaxOutput.Modifiers)
@@ -148,7 +148,7 @@
                         }
                         else
                         {
-                            <p style="color: red; width: 275px">Something went wrong. Make sure your input is correct and does not use "avg". Calculating based off of avg is not yet implemented.</p>
+                            <p style="color: red">Something went wrong. Make sure your input is correct and does not use "avg". Calculating based off of avg is not yet implemented.</p>
                         }
                     }
                 </div>

@@ -6,32 +6,32 @@ namespace DiceCalculator
 {
     public static class DiceRoller
     {
-        public static Tuple<DieRollThingy[], int> RollDice(DiceRoll diceRoll, int? seed = null)
+        public static Tuple<DieRollThingy[], int> RollDice(DiceExpression diceExpression, int? seed = null)
         {
-            var rolls = GetDiceRolls(diceRoll.Dice, seed);
-            var rollsAndMods = AddModsToRolls(rolls.Item1, diceRoll.Modifiers).ToArray();
-            var sum = Helpers.AddModifiers(rolls.Item2, diceRoll.Modifiers);
+            var rolls = GetDiceRolls(diceExpression.DiceRolls, seed);
+            var rollsAndMods = AddModsToRolls(rolls.Item1, diceExpression.Modifiers).ToArray();
+            var sum = Helpers.AddModifiers(rolls.Item2, diceExpression.Modifiers);
             return Tuple.Create(rollsAndMods, sum);
         }
 
-        private static Tuple<IList<DieRollThingy>, int> GetDiceRolls(IEnumerable<Die> dice, int? seed = null)
+        private static Tuple<IList<DieRollThingy>, int> GetDiceRolls(IEnumerable<DiceRoll> diceRolls, int? seed = null)
         {
             var randomizer = seed == null ? new Random() : new Random(seed.Value);
             IList<DieRollThingy> rolls = new List<DieRollThingy>();
             int sum = 0;
-            foreach (var die in dice)
+            foreach (var diceRoll in diceRolls)
             {
-                var dieRolls = new Tuple<int, DieRollOutput>[die.NumDice];
-                for (int i = 0; i < die.NumDice; i++)
+                var dieRolls = new Tuple<int, DieRollOutput>[diceRoll.NumDice];
+                for (int i = 0; i < diceRoll.NumDice; i++)
                 {
-                    var num = randomizer.Next(1, die.NumDieFaces + 1);
+                    var num = randomizer.Next(1, diceRoll.NumDieFaces + 1);
                     
                     var dieOutput = DieRollOutput.Normal;
                     if (num == 1)
                     {
                         dieOutput = DieRollOutput.CritFailure;
                     }
-                    else if (num == die.NumDieFaces)
+                    else if (num == diceRoll.NumDieFaces)
                     {
                         dieOutput = DieRollOutput.CritSuccess;
                     }
@@ -39,14 +39,14 @@ namespace DiceCalculator
                     dieRolls[i] = Tuple.Create(num, dieOutput);
                 }
 
-                MarkNonKeepDiceAsDropped(die, dieRolls);
+                MarkNonKeepDiceAsDropped(diceRoll, dieRolls);
                 var tempSum = dieRolls
                     .Where(roll => (roll.Item2 & DieRollOutput.Dropped) != DieRollOutput.Dropped)
                     .Select(roll => roll.Item1)
                     .Sum();
-                rolls.Add(new DieRollThingy(die.Operation, dieRolls, tempSum));
+                rolls.Add(new DieRollThingy(diceRoll.Operation, dieRolls, tempSum));
 
-                sum = die.Operation == Operation.Add
+                sum = diceRoll.Operation == Operation.Add
                     ? sum + tempSum
                     : sum - tempSum;
             }
@@ -54,14 +54,14 @@ namespace DiceCalculator
             return Tuple.Create(rolls, sum);
         }
 
-        private static void MarkNonKeepDiceAsDropped(Die die, Tuple<int, DieRollOutput>[] dieRolls)
+        private static void MarkNonKeepDiceAsDropped(DiceRoll diceRoll, Tuple<int, DieRollOutput>[] dieRolls)
         {
-            if (Helpers.NeedToDropDice(die))
+            if (Helpers.NeedToDropDice(diceRoll))
             {
                 var rolls = dieRolls.Select(roll => roll.Item1).ToArray();
                 Array.Sort(rolls);
-                var numDiceToDrop = die.NumDice - die.NumDiceToKeep;
-                var tempRolls = die.KeepHigh
+                var numDiceToDrop = diceRoll.NumDice - diceRoll.NumDiceToKeep;
+                var tempRolls = diceRoll.KeepHigh
                     ? rolls.Take(numDiceToDrop).ToList()
                     : rolls.TakeLast(numDiceToDrop).ToList();
 
@@ -89,7 +89,7 @@ namespace DiceCalculator
         }
     }
 
-    public class DieRollThingy
+    public class DieRollThingy //rename. move to own file
     {
         public DieRollThingy(string op, Tuple<int, DieRollOutput>[] rolls, int dieRollSum)
             => (Operation, DieRolls, DieRollSum) = (op, rolls, dieRollSum);
@@ -100,7 +100,7 @@ namespace DiceCalculator
     }
 
     [Flags]
-    public enum DieRollOutput
+    public enum DieRollOutput //move to own file? at the file with DieRollThingy
     {
         Normal      = 1,
         CritSuccess = 2,
