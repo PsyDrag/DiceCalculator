@@ -6,22 +6,23 @@ namespace DiceCalculator
 {
     public static class Helpers
     {
-        // TODO: should probably have this be an extension method.
-        // or in ctor should set NumDiceToKeep to NumDice where needed.
-        public static bool NeedToDropDice(DiceRoll diceRoll)
+        public static int[] GetDiceToKeep(DiceRoll diceRoll, int[] dieRolls)
         {
-            return diceRoll.NumDiceToKeep != 0 && diceRoll.NumDiceToKeep < diceRoll.NumDice;
+            return RemoveDice(diceRoll.KeepHigh, diceRoll.NumDiceToKeep, ref dieRolls);
         }
 
-        public static int[] DropNonKeepDice(DiceRoll diceRoll, int[] dieRolls)
+        public static int[] GetDiceToDrop(DiceRoll diceRoll, int[] dieRolls)
         {
-            if (NeedToDropDice(diceRoll))
-            {
-                Array.Sort(dieRolls);
-                dieRolls = diceRoll.KeepHigh
-                    ? dieRolls.TakeLast(diceRoll.NumDiceToKeep).ToArray()
-                    : dieRolls.Take(diceRoll.NumDiceToKeep).ToArray();
-            }
+            var numDiceToDrop = diceRoll.NumDice - diceRoll.NumDiceToKeep;
+            return RemoveDice(!diceRoll.KeepHigh, numDiceToDrop, ref dieRolls);
+        }
+
+        private static int[] RemoveDice(bool keep, int num, ref int[] dieRolls)
+        {
+            Array.Sort(dieRolls);
+            dieRolls = keep
+                ? dieRolls.TakeLast(num).ToArray()
+                : dieRolls.Take(num).ToArray();
             return dieRolls;
         }
 

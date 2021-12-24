@@ -18,7 +18,7 @@ namespace DiceCalculator
             foreach (var diceRoll in diceExpression.DiceRolls)
             {
                 // used to be int.MaxValue (~2.14mil)
-                if (Helpers.NeedToDropDice(diceRoll) && Math.Pow(diceRoll.NumDieFaces, diceRoll.NumDice) > 70000000)
+                if (diceRoll.NeedToDropDice() && Math.Pow(diceRoll.NumDieFaces, diceRoll.NumDice) > 70000000)
                 {
                     return new MinMax(0, 0, 0);
                 }
@@ -57,7 +57,7 @@ namespace DiceCalculator
             var diceRollTotalsAndCount = new Dictionary<int, long>();
             foreach (var diceRoll in diceExpression.DiceRolls)
             {
-                if (Helpers.NeedToDropDice(diceRoll))
+                if (diceRoll.NeedToDropDice())
                 {
                     var permutations = new List<int[]>();
                     int diceIndex = 0;
@@ -81,7 +81,9 @@ namespace DiceCalculator
         {
             if (diceIndex >= diceRoll.NumDice)
             {
-                var remainingSortedDice = Helpers.DropNonKeepDice(diceRoll, colList.ToArray());
+                var remainingSortedDice = diceRoll.NeedToDropDice()
+                    ? Helpers.GetDiceToKeep(diceRoll, colList.ToArray())
+                    : colList;
                 matrix.Add(remainingSortedDice);
                 diceIndex--;
                 colList[diceIndex] = 0;

@@ -8,7 +8,7 @@ namespace WasmDiceCalculator.Pages
         private string diceExpressionInput = "3d6";
         private string minMaxInput = "min:1 max:20";
         private MinMax diceExpressionOutput = null;
-        private Tuple<DieRollThingy[], int> rollOutput = null;
+        private Tuple<DiceRollResult[], int> rollOutput = null;
         private bool useRollOutput = false;
         private DiceExpression minMaxOutput = null;
         private string graphButtonText = "Show Graph";

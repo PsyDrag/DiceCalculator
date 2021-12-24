@@ -14,5 +14,10 @@
         public int NumDiceToKeep { get; set; }
         public int NumDieFaces { get; set; }
         public string Operation { get; set; }
+
+        public bool NeedToDropDice()
+        {
+            return NumDiceToKeep != 0 && NumDiceToKeep < NumDice;
+        }
     }
 }
