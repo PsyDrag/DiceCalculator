@@ -16,6 +16,13 @@
             //"  d20 + 6 ac 18          attack roll against AC 18\n" +
             //"  d20 + 4 dc 15          check against DC 15";
 
+        public static readonly string DiceSetExamples =
+            "Dice Set Examples:\n" +
+            "  [3d6, 6]               standard roll; number after comma is # of times to repeat\n" +
+            "  [4d6kh3, 6]            keep highest roll\n" +
+            "  [3d6 + d4 + 3, 3]      full dice expression";
+
+
         public static readonly string MinMaxExamples =
             "Min-Max Examples:\n" +
             "  min:10 max:48          2d20 + 8 is a possible result\n" +
