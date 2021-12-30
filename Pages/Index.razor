@@ -19,7 +19,7 @@
                 </div>
                 <div class="row">
                     <InputText class="col-12 col-md-auto" style="flex-grow:2" @bind-Value="diceExpressionInput" />
-                    <button class="btn btn-primary col-12 col-md-auto" @onclick="CalculateDiceRoll">Calculate</button>
+                    <button class="btn btn-primary col-12 col-md-auto" @onclick="CalculateDiceExpression">Calculate</button>
                     <button class="btn btn-secondary col-12 col-md-auto" @onclick="RollDice">Roll</button>
                 </div>
 
@@ -77,6 +77,31 @@
                             }
                         </p>
                     </div>
+                }
+                else if (useRollOutput && setOutput != null)
+                {
+                    foreach (var tuple in setOutput)
+                    {
+                        <div class="row" style="margin-top:10px; justify-content:space-evenly">
+                            <p style="border:1px solid black; padding:0px 5px; width:100%; text-align:center">
+                                @if (tuple.Item1.Length == 1)
+                                {
+                                    <span style="padding:1px 3px; background-color:lightgray">@tuple.Item2</span>
+                                }
+                                else
+                                {
+                                    <span>@tuple.Item1[0].Sum</span>
+                                    for (var i = 1; i < tuple.Item1.Length; i++)
+                                    {
+                                        var drr = tuple.Item1[i];
+                                        <span>@drr.Operation @drr.Sum</span>
+                                    }
+                                    <span>=</span>
+                                    <span style="padding:1px 3px; background-color:lightgray">@tuple.Item2</span>
+                                }
+                            </p>
+                        </div>
+                    }
                 }
                 else if (diceExpressionOutput != null)
                 {

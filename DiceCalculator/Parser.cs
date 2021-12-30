@@ -96,6 +96,26 @@ namespace DiceCalculator
             }
         }
 
+        public static DiceExpression[] ParseDiceSet(string line)
+        {
+            if (line.StartsWith('[') && line.LastIndexOf('[') == 0
+                && line.EndsWith(']') && line.IndexOf(']') == (line.Length - 1)
+                && line.Contains(',') && line.IndexOf(',') == line.LastIndexOf(','))
+            {
+                var components = line.ToLower().TrimStart('[').TrimEnd(']').Replace(" ", "").Split(',');
+                var diceExpression = ParseDiceExpression(components[0]);
+                var setLength = int.Parse(components[1]);
+
+                var expressions = new List<DiceExpression>();
+                for (int i = 0; i < setLength; i++)
+                {
+                    expressions.Add(diceExpression);
+                }
+                return expressions.ToArray();
+            }
+            return null;
+        }
+
         public static MinMax ParseMinMax(string line)
         {
             line = line.ToLower();

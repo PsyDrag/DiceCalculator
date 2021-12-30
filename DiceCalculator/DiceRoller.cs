@@ -14,6 +14,16 @@ namespace DiceCalculator
             return Tuple.Create(rollsAndMods, sum);
         }
 
+        public static Tuple<DiceRollResult[], int>[] RollDiceSet(DiceExpression[] diceExpressions, int? seed = null)
+        {
+            var outputs = new List<Tuple<DiceRollResult[], int>>();
+            foreach (var expr in diceExpressions)
+            {
+                outputs.Add(RollDice(expr));
+            }
+            return outputs.ToArray();
+        }
+
         private static Tuple<IList<DiceRollResult>, int> GetDiceRolls(IEnumerable<DiceRoll> diceRolls, int? seed = null)
         {
             var randomizer = seed == null ? new Random() : new Random(seed.Value);

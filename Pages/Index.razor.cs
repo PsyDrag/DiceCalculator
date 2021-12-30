@@ -9,12 +9,13 @@ namespace WasmDiceCalculator.Pages
         private string minMaxInput = "min:1 max:20";
         private MinMax diceExpressionOutput = null;
         private Tuple<DiceRollResult[], int> rollOutput = null;
+        private Tuple<DiceRollResult[], int>[] setOutput = null;
         private bool useRollOutput = false;
         private DiceExpression minMaxOutput = null;
         private string graphButtonText = "Show Graph";
         private bool shouldShowGraph = false;
 
-        private void CalculateDiceRoll()
+        private void CalculateDiceExpression()
         {
             var expr = Parser.ParseDiceExpression(diceExpressionInput);
             diceExpressionOutput = Calculator.CalculateDiceExpression(expr);
@@ -23,9 +24,20 @@ namespace WasmDiceCalculator.Pages
 
         private void RollDice()
         {
-            var expr = Parser.ParseDiceExpression(diceExpressionInput);
-            rollOutput = DiceRoller.RollDice(expr);
-            useRollOutput = true;
+            if (!diceExpressionInput.Contains('['))
+            {
+                var expr = Parser.ParseDiceExpression(diceExpressionInput);
+                rollOutput = DiceRoller.RollDice(expr);
+                setOutput = null;
+                useRollOutput = true;
+            }
+            else
+            {
+                var set = Parser.ParseDiceSet(diceExpressionInput);
+                setOutput = DiceRoller.RollDiceSet(set);
+                rollOutput = null;
+                useRollOutput = true;
+            }
         }
 
         private void CalculateMinMax()
