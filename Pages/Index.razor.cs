@@ -1,5 +1,6 @@
 ﻿using System;
 using DiceCalculator;
+using Microsoft.AspNetCore.Components;
 
 namespace WasmDiceCalculator.Pages
 {
@@ -14,6 +15,7 @@ namespace WasmDiceCalculator.Pages
         private DiceExpression minMaxOutput = null;
         private string graphButtonText = "Show Graph";
         private bool shouldShowGraph = false;
+        private bool isCalcButtonDisabled = false;
 
         private void CalculateDiceExpression()
         {
@@ -50,6 +52,12 @@ namespace WasmDiceCalculator.Pages
         {
             shouldShowGraph = !shouldShowGraph;
             graphButtonText = shouldShowGraph ? "Hide Graph" : "Show Graph";
+        }
+
+        private void DiceExpressionValueChanged(ChangeEventArgs args)
+        {
+            bool disableCalcButton = args.Value.ToString().IndexOfAny(new char[] { '[', ']' }) != -1;
+            isCalcButtonDisabled = disableCalcButton;
         }
     }
 }

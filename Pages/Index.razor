@@ -18,8 +18,8 @@
                     <h5 class="col text-center">Dice Expression</h5>
                 </div>
                 <div class="row">
-                    <InputText class="col-12 col-md-auto" style="flex-grow:2" @bind-Value="diceExpressionInput" />
-                    <button class="btn btn-primary col-12 col-md-auto" @onclick="CalculateDiceExpression">Calculate</button>
+                    <InputText class="col-12 col-md-auto" style="flex-grow:2" @bind-Value="diceExpressionInput" @oninput="DiceExpressionValueChanged" />
+                    <button class="btn btn-primary col-12 col-md-auto" @onclick="CalculateDiceExpression" disabled=@isCalcButtonDisabled>Calculate</button>
                     <button class="btn btn-secondary col-12 col-md-auto" @onclick="RollDice">Roll</button>
                 </div>
 
