@@ -23,9 +23,9 @@ namespace DiceCalculator
     public class Calculations
     {
         public Calculations(int count, long freq, float pct)
-            => (Count, Frequency, Percentage) = (count, freq, pct);
+            => (Value, Frequency, Percentage) = (count, freq, pct);
 
-        public int Count{ get; internal set; }
+        public int Value { get; internal set; }
         public long Frequency { get; internal set; }
         public float Percentage { get; internal set; }
     }

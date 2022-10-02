@@ -124,12 +124,12 @@
 
                 @if (!useRollOutput && diceExpressionOutput != null && diceExpressionOutput.MinMaxCalcs != null && shouldShowGraph)
                 {
-                    <table class="row" style="margin:10px 0px 20px 0px; justify-content: space-evenly">
+                    @*<table class="row" style="margin:10px 0px 20px 0px; justify-content: space-evenly">
                         <tbody style="width:300px; padding:10px; border:solid 1px black">
                             @foreach (var calc in diceExpressionOutput.MinMaxCalcs)
                             {
                                 <tr style="width:inherit">
-                                    <td align="right">@calc.Count:</td>
+                                    <td align="right">@calc.Value:</td>
                                     <td style="width:inherit">
                                         <div>
                                             <svg width="@calc.Percentage%" height="25px">
@@ -141,7 +141,8 @@
                                 </tr>
                             }
                         </tbody>
-                    </table>
+                    </table>*@
+                    <p>Graph functionality is currently undergoing a rework. If you're desperate for a graph, check out <a href="https://dice.clockworkmod.com/#" target="_blank">dice.clockworkmod.com</a>.</p>
                 }
             </div>
             <div class="col-1"></div>

@@ -33,13 +33,13 @@ namespace DiceCalculator
             {
                 return new MinMax(0, 0, 0);
             }
-            int min = calcs.First().Count;
-            int max = calcs.Last().Count;
+            int min = calcs.First().Value;
+            int max = calcs.Last().Value;
 
             float tempAvg = 0f;
             foreach (var calc in calcs)
             {
-                tempAvg += calc.Count * calc.Percentage;
+                tempAvg += calc.Value * calc.Percentage;
             }
             var avg = (float)Math.Round(tempAvg / 100, 3);
 
@@ -63,12 +63,22 @@ namespace DiceCalculator
                     int diceIndex = 0;
                     CalculateRecursively(diceRoll, permutations, ref diceIndex, colList: new int[diceRoll.NumDice]);
 
-                    var dieTotalsAndCount = AddUpPermutations(permutations, diceRoll);
+                    var dieTotalsAndCount = AddUpPermutations(permutations, diceRoll.Operation);
                     AddDieTotalsToDiceRollTotals(ref diceRollTotalsAndCount, dieTotalsAndCount); 
                 }
                 else
                 {
-                    var dieTotalsAndCount = GetDieTotalsAndCount(diceRoll);
+                    // foregoing count/freq for percentages for now
+                    //var dieTotalsAndCount = GetDieTotalsAndCount(diceRoll);
+
+                    var dieTotalsAndCount = new Dictionary<int, long>();
+                    var min = diceRoll.NumDice;
+                    var max = diceRoll.NumDice * diceRoll.NumDieFaces;
+                    for (int i = min; i <= max; i++)
+                    {
+                        var value = diceRoll.Operation == Operation.Subtract ? i*-1 : i;
+                        dieTotalsAndCount.Add(value, 1);
+                    }
                     AddDieTotalsToDiceRollTotals(ref diceRollTotalsAndCount, dieTotalsAndCount);
                 }
             }
@@ -103,7 +113,7 @@ namespace DiceCalculator
             }
         }
 
-        private static Dictionary<int, long> AddUpPermutations(IList<int[]> permutations, DiceRoll diceRoll)
+        private static Dictionary<int, long> AddUpPermutations(IList<int[]> permutations, string operation)
         {
             // add all nums of each permutation,
             // turning it negative if the die operation is subtract
@@ -115,7 +125,7 @@ namespace DiceCalculator
                 {
                     sum += num;
                 }
-                if (diceRoll.Operation == Operation.Subtract)
+                if (operation == Operation.Subtract)
                 {
                     sum *= -1;
                 }
@@ -167,7 +177,6 @@ namespace DiceCalculator
             var totalsAndCount = new Dictionary<int, long>();
 
             // formula taken from https://www.omnicalculator.com/statistics/dice#how-to-calculate-dice-roll-probability
-            // it's essentially a multiset - https://qr.ae/pGmpoz
             int n = diceRoll.NumDice;
             int s = diceRoll.NumDieFaces;
             int min = n;
@@ -227,7 +236,7 @@ namespace DiceCalculator
                 calcs.Add(new Calculations(count, kvp.Value, 0));
             }
 
-            calcs = calcs.OrderBy(calc => calc.Count).ToList();
+            calcs = calcs.OrderBy(calc => calc.Value).ToList();
             return calcs;
         }
 
